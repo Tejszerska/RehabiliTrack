@@ -1,0 +1,159 @@
+import React, { useState } from 'react';
+import { View, FlatList, StyleSheet } from 'react-native';
+import { Patient } from '../types/models';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/types';
+import { TextInput, Button, Text, FAB, Surface, List, useTheme } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+const MOCK_PATIENTS: Patient[] = [
+  { id: 1, firstName: 'Jan', lastName: 'Kowalski', pesel: '85010112345', phoneNumber: '500 600 700', createdAt: '', updatedAt: '', isActive: true },
+  { id: 2, firstName: 'Anna', lastName: 'Nowak', pesel: '92020254321', createdAt: '', updatedAt: '', isActive: true },
+  { id: 3, firstName: 'Marek', lastName: 'Zieliński', pesel: '70101099887', phoneNumber: '111 222 333', createdAt: '', updatedAt: '', isActive: true },
+];
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type Props = NativeStackScreenProps<RootStackParamList, 'PatientList'>;
+
+const PatientListScreen = () => {
+  const navigation = useNavigation<NavigationProp>();
+  const theme = useTheme();
+
+  const goToPatientDetails = (id:number): void => {
+    navigation.navigate('PatientDetails', {
+      patientId: id
+    }); 
+  };
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [displayPatients, setDisplayPatients] = useState<Patient[]>(MOCK_PATIENTS);
+
+  const handleSearch = () => {
+    const filtered = MOCK_PATIENTS.filter(p => 
+      p.lastName.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
+      p.firstName.toLowerCase().startsWith(searchQuery.toLowerCase())
+    );
+    setDisplayPatients(filtered);
+  };
+
+  const handleClear = () => {
+    setSearchQuery('');
+    setDisplayPatients(MOCK_PATIENTS);
+  };
+
+  const renderPatientItem = ({ item }: { item: Patient }) => (
+    <Surface style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={1}>
+      <List.Item
+        title={`${item.firstName} ${item.lastName}`}
+        description={`PESEL: ${item.pesel}`}
+        titleStyle={styles.name}
+        descriptionStyle={styles.details}
+        right={props => <List.Icon {...props} icon="chevron-right" color={theme.colors.primary} />}
+        onPress={() => {goToPatientDetails(item.id)}} 
+      />
+    </Surface>
+  );
+
+  return (
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <View style={styles.searchSection}>
+        
+        <TextInput
+          mode="outlined"
+          label="Enter name or surname..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          style={styles.searchInput}
+          right={<TextInput.Icon icon="magnify" />}
+        />
+        
+        <View style={styles.buttonRow}>
+          <Button 
+            mode="contained" 
+            onPress={handleSearch} 
+            style={styles.button}
+            icon="magnify"
+          >
+            Search
+          </Button>
+          
+          <Button 
+            mode="outlined" 
+            onPress={handleClear} 
+            style={styles.button}
+            icon="close"
+          >
+            Clear
+          </Button>
+        </View>
+      </View>
+
+      <FlatList
+        data={displayPatients}
+        renderItem={renderPatientItem}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={<Text style={styles.emptyText}>No patients found.</Text>}
+      />
+
+      {/* button + */}
+      <FAB
+        icon="plus"
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+        color={theme.colors.onPrimary}
+        onPress={() => navigation.navigate('AddPatient')}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: { 
+    flex: 1 
+  },
+  searchSection: { 
+    paddingHorizontal: 20, 
+    marginBottom: 15,
+    marginTop: 15 
+  },
+  searchInput: {
+    marginBottom: 10,
+  },
+  buttonRow: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between' 
+  },
+  button: {
+    flex: 0.48, 
+  },
+  listContent: { 
+    paddingHorizontal: 20, 
+    paddingBottom: 100 
+  },
+  card: {
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  name: { 
+    fontSize: 18, 
+    fontWeight: '600' 
+  },
+  details: { 
+    fontSize: 14, 
+    marginTop: 2 
+  },
+  emptyText: { 
+    textAlign: 'center', 
+    marginTop: 50, 
+    color: '#999', 
+    fontSize: 16 
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 30,
+    borderRadius: 30
+  }
+});
+
+export default PatientListScreen;

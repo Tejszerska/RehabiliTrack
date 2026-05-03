@@ -1,0 +1,53 @@
+# ==========================================
+# GŁÓWNE (Dla całego repozytorium)
+# ==========================================
+.vs/
+.vscode/
+*.log
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# .NET (API) - Szuka w każdym podfolderze
+# ==========================================
+**/[Bb]in/
+**/[Oo]bj/
+**/[Dd]ebug/
+**/[Rr]elease/
+**/[Ww][Ii][Nn]32/
+**/x64/
+**/x86/
+*.csproj.user
+*.user
+*.sln.docstates
+project.lock.json
+artifacts/
+
+# ==========================================
+# REACT NATIVE / JS (Mobile)
+# ==========================================
+**/node_modules/
+**/build/
+**/dist/
+.expo/
+.npm-debug.*
+.env
+.env.*.local
+pnpm-lock.yaml
+package-lock.json
+
+# Android specyficzne
+**/android/.gradle/
+**/android/app/build/
+**/android/build/
+**/android/.cxx/
+**/android/.externalNativeBuild/
+*.apk
+*.aab
+
+# iOS specyficzne
+**/ios/Pods/
+**/ios/build/
+**/DerivedData/
+*.xcuserstate
+*.xcworkspace
