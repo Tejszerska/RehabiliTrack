@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace RehabiliTrack_API.Models.Data
 {
@@ -27,7 +28,56 @@ namespace RehabiliTrack_API.Models.Data
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
 
+            // saves enum as name instead of number in database
+
+            modelBuilder.Entity<Appointment>()
+                .Property(e => e.Status)
+                .HasConversion<string>();
+
             SeedData(modelBuilder);
+
+        }
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            // get all tracked entities that are being added, modified, or deleted
+            var entries = ChangeTracker.Entries();
+
+            // get current UTC time once to use for all entities in this save operation (to ensure consistency)
+            var utcNow = DateTime.UtcNow;
+
+            foreach (var entry in entries)
+            {
+                // check if the entity is a BaseEntity (or derived from it) to apply common logic for CreatedAt, UpdatedAt, and IsActive
+                if (entry.Entity is BaseEntity baseEntity)
+                {
+                    switch (entry.State)
+                    {
+                        // CREATE
+                        case EntityState.Added:
+                            baseEntity.CreatedAt = utcNow;
+                            baseEntity.UpdatedAt = utcNow;
+                            baseEntity.IsActive = true;
+                            break;
+
+                        // UPDATE
+                        case EntityState.Modified:
+                            baseEntity.UpdatedAt = utcNow;
+                            break;
+
+                        // SOFT DELETE
+                        case EntityState.Deleted:
+                            // Change the state back to Modified to prevent physical deletion from the database (DELETE command)
+                            entry.State = EntityState.Modified;
+
+                            // Set the record as inactive and update the modification date
+                            baseEntity.IsActive = false;
+                            baseEntity.UpdatedAt = utcNow;
+                            break;
+                    }
+                }
+            }
+
+            return base.SaveChangesAsync(cancellationToken);
         }
 
         private static void SeedData(ModelBuilder modelBuilder)
@@ -78,11 +128,11 @@ namespace RehabiliTrack_API.Models.Data
 
             // 6. THERAPISTS (5) - Assigned to specific TherapistRoleId
             modelBuilder.Entity<Therapist>().HasData(
-                new Therapist { Id = 1, FirstName = "Jan", LastName = "Kowalski", LicenseNumber = "PWZ12345", PhoneNumber = "111222333", TherapistRoleId = 1, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
-                new Therapist { Id = 2, FirstName = "Anna", LastName = "Nowak", LicenseNumber = "PWZ23456", PhoneNumber = "222333444", TherapistRoleId = 2, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
-                new Therapist { Id = 3, FirstName = "Piotr", LastName = "Wiśniewski", LicenseNumber = "PWZ34567", PhoneNumber = "333444555", TherapistRoleId = 1, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
-                new Therapist { Id = 4, FirstName = "Maria", LastName = "Wójcik", LicenseNumber = "PWZ45678", PhoneNumber = "444555666", TherapistRoleId = 3, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
-                new Therapist { Id = 5, FirstName = "Tomasz", LastName = "Kamiński", LicenseNumber = "PWZ56789", PhoneNumber = "555666777", TherapistRoleId = 2, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true }
+                new Therapist { Id = 1, FirstName = "Jan", LastName = "Kowalski", LicenseNumber = "1234567", PhoneNumber = "111222333", TherapistRoleId = 1, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
+                new Therapist { Id = 2, FirstName = "Anna", LastName = "Nowak", LicenseNumber = "2234567", PhoneNumber = "222333444", TherapistRoleId = 2, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
+                new Therapist { Id = 3, FirstName = "Piotr", LastName = "Wiśniewski", LicenseNumber = "3234567", PhoneNumber = "333444555", TherapistRoleId = 1, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
+                new Therapist { Id = 4, FirstName = "Maria", LastName = "Wójcik", LicenseNumber = "4234567", PhoneNumber = "444555666", TherapistRoleId = 3, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
+                new Therapist { Id = 5, FirstName = "Tomasz", LastName = "Kamiński", LicenseNumber = "5234567", PhoneNumber = "555666777", TherapistRoleId = 2, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true }
             );
 
             // 7. PATIENTS (5)

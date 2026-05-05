@@ -3,13 +3,13 @@ version: '3.8'
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: RehabiliTrackDB
+    container_name: RehabiliTrack_SQL_Server
     environment:
       # Akceptacja licencji
       - ACCEPT_EULA=Y
       
       # Hasło SA (administrator)
-      - SA_PASSWORD=YourStrong@Password123
+      - MSSQL_SA_PASSWORD=YourStrong@Password123
       
       # Edycja SQL Server (Developer = darmowa)
       - MSSQL_PID=Developer
@@ -20,7 +20,7 @@ services:
     
     volumes:
       # Trwałość danych (nie ginie po restart)
-      - testReactDb-data:/var/opt/mssql
+      - rehabilitrack-data:/var/opt/mssql
     
     networks:
       - dev-network
@@ -41,4 +41,4 @@ networks:
     driver: bridge
 
 volumes:
-  testReactDb-data:
+  rehabilitrack-data:

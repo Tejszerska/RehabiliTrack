@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace RehabiliTrack_API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialSetup : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,11 +19,11 @@ namespace RehabiliTrack_API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Pesel = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Pesel = table.Column<string>(type: "nvarchar(11)", maxLength: 11, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
@@ -39,7 +39,7 @@ namespace RehabiliTrack_API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
@@ -55,7 +55,7 @@ namespace RehabiliTrack_API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -73,7 +73,7 @@ namespace RehabiliTrack_API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false)
@@ -89,7 +89,7 @@ namespace RehabiliTrack_API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     DurationMinutes = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -106,8 +106,8 @@ namespace RehabiliTrack_API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RoomNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    RoomNumber = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Capacity = table.Column<int>(type: "int", nullable: false),
                     RoomTypeId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -160,11 +160,11 @@ namespace RehabiliTrack_API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LicenseNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LicenseNumber = table.Column<string>(type: "nvarchar(7)", maxLength: 7, nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    Notes = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     TherapistRoleId = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -192,7 +192,7 @@ namespace RehabiliTrack_API.Migrations
                     TherapistId = table.Column<int>(type: "int", nullable: false),
                     RoomId = table.Column<int>(type: "int", nullable: false),
                     StartDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     StayParticipationId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -306,11 +306,11 @@ namespace RehabiliTrack_API.Migrations
                 columns: new[] { "Id", "CreatedAt", "FirstName", "IsActive", "LastName", "LicenseNumber", "Notes", "PhoneNumber", "TherapistRoleId", "UpdatedAt" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc), "Jan", true, "Kowalski", "PWZ12345", null, "111222333", 1, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc) },
-                    { 2, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc), "Anna", true, "Nowak", "PWZ23456", null, "222333444", 2, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc) },
-                    { 3, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc), "Piotr", true, "Wiśniewski", "PWZ34567", null, "333444555", 1, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc) },
-                    { 4, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc), "Maria", true, "Wójcik", "PWZ45678", null, "444555666", 3, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc) },
-                    { 5, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc), "Tomasz", true, "Kamiński", "PWZ56789", null, "555666777", 2, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc) }
+                    { 1, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc), "Jan", true, "Kowalski", "1234567", null, "111222333", 1, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc) },
+                    { 2, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc), "Anna", true, "Nowak", "2234567", null, "222333444", 2, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc) },
+                    { 3, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc), "Piotr", true, "Wiśniewski", "3234567", null, "333444555", 1, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc) },
+                    { 4, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc), "Maria", true, "Wójcik", "4234567", null, "444555666", 3, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc) },
+                    { 5, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc), "Tomasz", true, "Kamiński", "5234567", null, "555666777", 2, new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc) }
                 });
 
             migrationBuilder.CreateIndex(
@@ -339,6 +339,12 @@ namespace RehabiliTrack_API.Migrations
                 column: "TreatmentId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Patients_Pesel",
+                table: "Patients",
+                column: "Pesel",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_RehabRooms_RoomTypeId",
                 table: "RehabRooms",
                 column: "RoomTypeId");
@@ -352,6 +358,12 @@ namespace RehabiliTrack_API.Migrations
                 name: "IX_StayParticipations_StayId",
                 table: "StayParticipations",
                 column: "StayId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Therapists_LicenseNumber",
+                table: "Therapists",
+                column: "LicenseNumber",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Therapists_TherapistRoleId",

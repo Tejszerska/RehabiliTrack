@@ -12,8 +12,8 @@ using RehabiliTrack_API.Models.Data;
 namespace RehabiliTrack_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260504164351_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260505144230_InitialSetup")]
+    partial class InitialSetup
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,8 +48,9 @@ namespace RehabiliTrack_API.Migrations
                     b.Property<DateTime>("StartDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("StayParticipationId")
                         .HasColumnType("int");
@@ -91,29 +92,37 @@ namespace RehabiliTrack_API.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("Pesel")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(11)
+                        .HasColumnType("nvarchar(11)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Pesel")
+                        .IsUnique();
 
                     b.ToTable("Patients");
 
@@ -194,11 +203,13 @@ namespace RehabiliTrack_API.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("RoomNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<int>("RoomTypeId")
                         .HasColumnType("int");
@@ -286,7 +297,8 @@ namespace RehabiliTrack_API.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -341,7 +353,8 @@ namespace RehabiliTrack_API.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
@@ -451,24 +464,29 @@ namespace RehabiliTrack_API.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("LicenseNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
 
                     b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.Property<int>("TherapistRoleId")
                         .HasColumnType("int");
@@ -477,6 +495,9 @@ namespace RehabiliTrack_API.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LicenseNumber")
+                        .IsUnique();
 
                     b.HasIndex("TherapistRoleId");
 
@@ -490,7 +511,7 @@ namespace RehabiliTrack_API.Migrations
                             FirstName = "Jan",
                             IsActive = true,
                             LastName = "Kowalski",
-                            LicenseNumber = "PWZ12345",
+                            LicenseNumber = "1234567",
                             PhoneNumber = "111222333",
                             TherapistRoleId = 1,
                             UpdatedAt = new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc)
@@ -502,7 +523,7 @@ namespace RehabiliTrack_API.Migrations
                             FirstName = "Anna",
                             IsActive = true,
                             LastName = "Nowak",
-                            LicenseNumber = "PWZ23456",
+                            LicenseNumber = "2234567",
                             PhoneNumber = "222333444",
                             TherapistRoleId = 2,
                             UpdatedAt = new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc)
@@ -514,7 +535,7 @@ namespace RehabiliTrack_API.Migrations
                             FirstName = "Piotr",
                             IsActive = true,
                             LastName = "Wiśniewski",
-                            LicenseNumber = "PWZ34567",
+                            LicenseNumber = "3234567",
                             PhoneNumber = "333444555",
                             TherapistRoleId = 1,
                             UpdatedAt = new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc)
@@ -526,7 +547,7 @@ namespace RehabiliTrack_API.Migrations
                             FirstName = "Maria",
                             IsActive = true,
                             LastName = "Wójcik",
-                            LicenseNumber = "PWZ45678",
+                            LicenseNumber = "4234567",
                             PhoneNumber = "444555666",
                             TherapistRoleId = 3,
                             UpdatedAt = new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc)
@@ -538,7 +559,7 @@ namespace RehabiliTrack_API.Migrations
                             FirstName = "Tomasz",
                             IsActive = true,
                             LastName = "Kamiński",
-                            LicenseNumber = "PWZ56789",
+                            LicenseNumber = "5234567",
                             PhoneNumber = "555666777",
                             TherapistRoleId = 2,
                             UpdatedAt = new DateTime(2026, 1, 1, 12, 0, 0, 0, DateTimeKind.Utc)
@@ -561,7 +582,8 @@ namespace RehabiliTrack_API.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -616,7 +638,8 @@ namespace RehabiliTrack_API.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
