@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; // Wymagane dla ForeignKey
+using System.ComponentModel.DataAnnotations.Schema; 
 
 namespace RehabiliTrack_API.Models
 {
