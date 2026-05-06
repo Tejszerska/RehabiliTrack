@@ -1,4 +1,6 @@
-﻿namespace RehabiliTrack_API.Features.Stays.Queries.GetAllStays
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RehabiliTrack_API.Features.Stays.Queries.GetAllStays
 {
     public class StayDto
     {
@@ -7,5 +9,6 @@
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int Occupancy { get; set; } // Number of patients currently in the stay counted in handler
+        public int MaxCapacity { get; set; }
     }
 }

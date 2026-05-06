@@ -26,6 +26,7 @@ namespace RehabiliTrack_API.Features.Stays.Commands.UpdateStay
             stay.Name = request.Name;
             stay.StartDate = request.StartDate;
             stay.EndDate = request.EndDate;
+            stay.MaxCapacity = request.MaxCapacity;
 
             await _context.SaveChangesAsync(cancellationToken);
 

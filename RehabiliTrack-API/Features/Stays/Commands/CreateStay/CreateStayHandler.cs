@@ -19,7 +19,8 @@ namespace RehabiliTrack_API.Features.Stays.Commands.CreateStay
             {
                 Name = request.Name,
                 StartDate = request.StartDate,
-                EndDate = request.EndDate
+                EndDate = request.EndDate,
+                MaxCapacity = request.MaxCapacity
             };
 
             _context.Stays.Add(stay);

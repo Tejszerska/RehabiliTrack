@@ -24,7 +24,8 @@ namespace RehabiliTrack_API.Features.Stays.Queries.GetStayById
                     StartDate = s.StartDate,
                     EndDate = s.EndDate,
                     Occupancy = s.StayParticipations.Count(sp => sp.IsActive),
-                   
+                    MaxCapacity = s.MaxCapacity,
+
                     Patients = s.StayParticipations
                         .Where(sp => sp.IsActive)
                         .Select(sp => new StayPatientDto

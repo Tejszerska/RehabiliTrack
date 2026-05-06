@@ -101,11 +101,11 @@ namespace RehabiliTrack_API.Models.Data
 
             // 3. STAYS (5)
             modelBuilder.Entity<Stay>().HasData(
-                new Stay { Id = 1, Name = "Spring Stay 2026", StartDate = new DateTime(2026, 3, 1), EndDate = new DateTime(2026, 3, 14), CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
-                new Stay { Id = 2, Name = "Summer Stay 2026", StartDate = new DateTime(2026, 7, 1), EndDate = new DateTime(2026, 7, 14), CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
-                new Stay { Id = 3, Name = "Autumn Stay 2026", StartDate = new DateTime(2026, 10, 1), EndDate = new DateTime(2026, 10, 14), CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
-                new Stay { Id = 4, Name = "Winter Stay 2026", StartDate = new DateTime(2026, 12, 1), EndDate = new DateTime(2026, 12, 14), CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
-                new Stay { Id = 5, Name = "New Year Stay 2027", StartDate = new DateTime(2027, 1, 2), EndDate = new DateTime(2027, 1, 15), CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true }
+                new Stay { Id = 1, Name = "Spring Stay 2026", StartDate = new DateTime(2026, 3, 1), EndDate = new DateTime(2026, 3, 14), MaxCapacity = 20, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
+                new Stay { Id = 2, Name = "Summer Stay 2026", StartDate = new DateTime(2026, 7, 1), EndDate = new DateTime(2026, 7, 14), MaxCapacity = 20, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
+                new Stay { Id = 3, Name = "Autumn Stay 2026", StartDate = new DateTime(2026, 10, 1), EndDate = new DateTime(2026, 10, 14), MaxCapacity = 20, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
+                new Stay { Id = 4, Name = "Winter Stay 2026", StartDate = new DateTime(2026, 12, 1), EndDate = new DateTime(2026, 12, 14), MaxCapacity = 20, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true },
+                new Stay { Id = 5, Name = "New Year Stay 2027", StartDate = new DateTime(2027, 1, 2), EndDate = new DateTime(2027, 1, 15), MaxCapacity = 20, CreatedAt = seedDate, UpdatedAt = seedDate, IsActive = true }
             );
 
             // 4. TREATMENTS (5)

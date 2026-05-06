@@ -1,4 +1,6 @@
-﻿namespace RehabiliTrack_API.Features.Stays.Queries.GetStayById
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RehabiliTrack_API.Features.Stays.Queries.GetStayById
 {
     public class StayDetailsDto
     {
@@ -7,7 +9,7 @@
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int Occupancy { get; set; }
-
+        public int MaxCapacity { get; set; }
         public List<StayPatientDto> Patients { get; set; } = new List<StayPatientDto>();
     }
 

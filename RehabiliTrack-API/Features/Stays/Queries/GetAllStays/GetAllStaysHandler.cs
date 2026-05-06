@@ -24,7 +24,8 @@ namespace RehabiliTrack_API.Features.Stays.Queries.GetAllStays
                     Name = s.Name,
                     StartDate = s.StartDate,
                     EndDate = s.EndDate,
-                    Occupancy = s.StayParticipations.Count(sp => sp.IsActive)
+                    Occupancy = s.StayParticipations.Count(sp => sp.IsActive),
+                    MaxCapacity = s.MaxCapacity
                 })
                 .ToListAsync(cancellationToken);
 

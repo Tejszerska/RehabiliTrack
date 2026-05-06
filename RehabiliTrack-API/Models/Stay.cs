@@ -15,5 +15,10 @@ namespace RehabiliTrack_API.Models
         public DateTime EndDate { get; set; }
 
         public virtual ICollection<StayParticipation> StayParticipations { get; set; } = new List<StayParticipation>();
+
+        [Required(ErrorMessage = "Max capacity is required.")]
+        [Range(1, 1000, ErrorMessage = "Max capacity must be between 1 and 1000.")]
+        public int MaxCapacity { get; set; }
+
     }
 }
