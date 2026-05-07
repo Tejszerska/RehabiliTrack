@@ -1,6 +1,7 @@
 import React from 'react';
 import { PaperProvider, MD3LightTheme as DefaultTheme } from 'react-native-paper'; 
 import RootNavigator from './src/navigation/RootNavigator';
+import { PatientsProvider } from './src/context/PatientsContext';
 
 const theme = {
   ...DefaultTheme,
@@ -19,7 +20,9 @@ const theme = {
 const App = () => {
   return (
     <PaperProvider theme={theme}>
-      <RootNavigator />      
+      <PatientsProvider>
+        <RootNavigator />      
+      </PatientsProvider>
     </PaperProvider>
   );
 };

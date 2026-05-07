@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, FlatList, StyleSheet, ScrollView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/types';
+import { RootStackParamList } from '../../navigation/types';
 import { useTheme, Text, Card, Avatar, FAB, Chip } from 'react-native-paper';
 
 const MOCK_APPOINTMENTS = [
@@ -10,9 +10,9 @@ const MOCK_APPOINTMENTS = [
   { id: '3', time: '11:00 AM', patient: 'Marek Zieliński', therapist: 'Dr. House', treatment: 'Laser', room: '101', status: 'Canceled' },
 ];
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Schedule'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Appointments'>;
 
-const ScheduleScreen: React.FC<Props> = ({ navigation }) => {
+const AppointmentsScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const [appointments, setAppointments] = useState(MOCK_APPOINTMENTS);
 
@@ -86,4 +86,4 @@ const styles = StyleSheet.create({
   fab: { position: 'absolute', right: 20, bottom: 30, borderRadius: 30 },
 });
 
-export default ScheduleScreen;
+export default AppointmentsScreen;

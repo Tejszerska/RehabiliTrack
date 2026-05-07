@@ -7,8 +7,11 @@ export type RootStackParamList = {
   PatientDetails: {
     patientId: number
   }
+  EditPatient: {
+    patientId: number
+  }
 
-Schedule: undefined;
+Appointments: undefined;
 StayList: undefined;
 
   Profile: { 

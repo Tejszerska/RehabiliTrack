@@ -23,6 +23,15 @@ namespace RehabiliTrack_API.Features.Patients.Queries.GetPatientById
         public string? Notes { get; set; }
         public bool IsActive { get; set; }
 
-        // @TODO Patient - Stays (many-to-many via StayParticipation) LAB 3
+        public List<PatientStayDto> Stays { get; set; } = new();
+
+        public class PatientStayDto
+        {
+            public int StayId { get; set; }
+            public string StayName { get; set; } = string.Empty;
+            public DateTime StartDate { get; set; }
+            public DateTime EndDate { get; set; }
+            
+        }
     }
 }

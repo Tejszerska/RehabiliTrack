@@ -1,35 +1,40 @@
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
-import { Patient } from '../types/models';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../navigation/types';
-import { TextInput, Button, Text, FAB, Surface, List, useTheme } from 'react-native-paper';
+import { Patient } from '../../types/models';
+import { RootStackParamList } from '../../navigation/types';
+import { TextInput, Button, Text, FAB, Surface, List, useTheme, ActivityIndicator } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { usePatients } from '../../context/PatientsContext';
+import { useCallback } from 'react';
 
-const MOCK_PATIENTS: Patient[] = [
-  { id: 1, firstName: 'Jan', lastName: 'Kowalski', pesel: '85010112345', phoneNumber: '500 600 700', createdAt: '', updatedAt: '', isActive: true },
-  { id: 2, firstName: 'Anna', lastName: 'Nowak', pesel: '92020254321', createdAt: '', updatedAt: '', isActive: true },
-  { id: 3, firstName: 'Marek', lastName: 'Zieliński', pesel: '70101099887', phoneNumber: '111 222 333', createdAt: '', updatedAt: '', isActive: true },
-];
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
-type Props = NativeStackScreenProps<RootStackParamList, 'PatientList'>;
 
-const PatientListScreen = () => {
+const TherapistListScreen = () => {
+  const { patients, loading, error, refreshPatients } = usePatients();
   const navigation = useNavigation<NavigationProp>();
   const theme = useTheme();
 
-  const goToPatientDetails = (id:number): void => {
+  const goToPatientDetails = (id: number): void => {
     navigation.navigate('PatientDetails', {
       patientId: id
     }); 
   };
 
+  const renderRightIcon = useCallback(
+    (props: any) => <List.Icon {...props} icon="chevron-right" color={theme.colors.primary} />,
+    [theme.colors.primary]
+  )
+  
+  /*
+  ============ DODATKOWY ELEMENT LAB 5 ============
+            == wersja z mocków z lab 1 pacjenci ==
   const [searchQuery, setSearchQuery] = useState('');
-  const [displayPatients, setDisplayPatients] = useState<Patient[]>(MOCK_PATIENTS);
+  const [displayPatients, setDisplayPatients] = useState<Patient[]>([]);
+  
 
   const handleSearch = () => {
-    const filtered = MOCK_PATIENTS.filter(p => 
+    const filtered = patients.filter(p => 
       p.lastName.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
       p.firstName.toLowerCase().startsWith(searchQuery.toLowerCase())
     );
@@ -38,8 +43,9 @@ const PatientListScreen = () => {
 
   const handleClear = () => {
     setSearchQuery('');
-    setDisplayPatients(MOCK_PATIENTS);
+    setDisplayPatients(patients);
   };
+  */
 
   const renderPatientItem = ({ item }: { item: Patient }) => (
     <Surface style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={1}>
@@ -48,11 +54,27 @@ const PatientListScreen = () => {
         description={`PESEL: ${item.pesel}`}
         titleStyle={styles.name}
         descriptionStyle={styles.details}
-        right={props => <List.Icon {...props} icon="chevron-right" color={theme.colors.primary} />}
+        right={renderRightIcon}
         onPress={() => {goToPatientDetails(item.id)}} 
       />
     </Surface>
   );
+
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator animating={true} size="large" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.centered}>
+        <Text style={{ color: theme.colors.error }}>Error: {error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
@@ -61,8 +83,8 @@ const PatientListScreen = () => {
         <TextInput
           mode="outlined"
           label="Enter name or surname..."
-          value={searchQuery}
-          onChangeText={setSearchQuery}
+          // value={searchQuery}
+          // onChangeText={setSearchQuery}
           style={styles.searchInput}
           right={<TextInput.Icon icon="magnify" />}
         />
@@ -70,7 +92,7 @@ const PatientListScreen = () => {
         <View style={styles.buttonRow}>
           <Button 
             mode="contained" 
-            onPress={handleSearch} 
+            // onPress={handleSearch} 
             style={styles.button}
             icon="magnify"
           >
@@ -79,7 +101,7 @@ const PatientListScreen = () => {
           
           <Button 
             mode="outlined" 
-            onPress={handleClear} 
+            // onPress={handleClear} 
             style={styles.button}
             icon="close"
           >
@@ -89,14 +111,15 @@ const PatientListScreen = () => {
       </View>
 
       <FlatList
-        data={displayPatients}
+        data={patients}
         renderItem={renderPatientItem}
         keyExtractor={(item) => item.id.toString()}
+        onRefresh={refreshPatients}
+        refreshing={loading}
         contentContainerStyle={styles.listContent}
         ListEmptyComponent={<Text style={styles.emptyText}>No patients found.</Text>}
       />
 
-      {/* button + */}
       <FAB
         icon="plus"
         style={[styles.fab, { backgroundColor: theme.colors.primary }]}
@@ -153,7 +176,12 @@ const styles = StyleSheet.create({
     right: 20,
     bottom: 30,
     borderRadius: 30
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   }
 });
 
-export default PatientListScreen;
+export default TherapistListScreen;

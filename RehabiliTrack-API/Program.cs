@@ -65,7 +65,7 @@ namespace RehabiliTrack_API
                 );
             }
 
-            app.UseHttpsRedirection();
+         //   app.UseHttpsRedirection();
 
             app.UseAuthorization();
 

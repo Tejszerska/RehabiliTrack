@@ -5,6 +5,40 @@ export interface BaseEntity {
   isActive: boolean;
 }
 
+// PATIENT
+export interface Patient extends BaseEntity {
+  firstName: string;
+  lastName: string;
+  pesel: string;
+  phoneNumber?: string;
+  notes?: string;
+  stays: PatientStay[];
+}
+
+export interface PatientStay {
+  stayId: number;
+  stayName: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface CreatePatientRequest {
+  firstName: string;
+  lastName: string;
+  pesel: string;
+  phoneNumber?: string;
+  notes?: string;
+}
+
+export interface UpdatePatientRequest extends CreatePatientRequest {
+  id: number
+}
+
+
+// below are versions for 1st lab - may need fixing 
+
+
+
 export type TherapistRole = 
   | 'Physiotherapist' 
   | 'Massage Therapist' 
@@ -21,13 +55,7 @@ export interface Therapist extends BaseEntity {
   notes?: string;
 }
 
-export interface Patient extends BaseEntity {
-  firstName: string;
-  lastName: string;
-  pesel: string;
-  phoneNumber?: string;
-  notes?: string;
-}
+
 
 export type RoomType = 
   | 'Kinesitherapy' 
