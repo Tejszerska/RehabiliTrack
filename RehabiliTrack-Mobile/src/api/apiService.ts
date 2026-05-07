@@ -1,5 +1,5 @@
 import { API_BASE_URL } from './config';
-import type { Patient, CreatePatientRequest, UpdatePatientRequest } from '../types/models';
+import type { Patient, CreatePatientRequest, UpdatePatientRequest, Therapist, CreateTherapistRequest, UpdateTherapistRequest } from '../types/models';
 
 class ApiService {
   private baseUrl: string;
@@ -96,7 +96,37 @@ async updatePatient(id: number, data: UpdatePatientRequest): Promise<void> {
     });
   }
 
-  // === STAYS ===
+  // === THERAPISTS ===
+
+    async getTherapists(): Promise<Therapist[]> {
+    return this.request<Therapist[]>('/Therapists');
+  }
+
+  async getTherapist(id: number): Promise<Therapist> {
+    return this.request<Therapist>(`/Therapists/${id}`);
+  }
+
+async createTherapist(
+  data: CreateTherapistRequest)
+  : Promise<{ id: number }> {
+  return this.request<{ id: number }>('/Therapists', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+async updateTherapist(id: number, data: UpdateTherapistRequest): Promise<void> {
+  return this.request<void>(`/Therapists/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ ...data, id: id }), 
+  });
+}
+
+  async deleteTherapist(id: number): Promise<void> {
+    return this.request<void>(`/Therapists/${id}`, {
+      method: 'DELETE',
+    });
+  }
 
 }
 // Singleton

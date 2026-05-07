@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { TextInput, Button, useTheme, Text, Surface, IconButton } from 'react-native-paper';
+import { TextInput, Button, useTheme, Text} from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { usePatients } from '../../context/PatientsContext';
 import { UpdatePatientRequest } from '../../types/models';
+import CustomHeader from '../../components/CustomHeader';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EditPatient'>;
 
@@ -82,18 +83,8 @@ const EditPatientScreen: React.FC<Props> = ({ route, navigation }) => {
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} bounces={false}>
       
       {/* back arrow instead of default header */}
-      <Surface style={[styles.header, { backgroundColor: theme.colors.primary }]} elevation={2}>
-        <IconButton
-          icon="arrow-left"
-          iconColor={theme.colors.onPrimary}
-          size={28}
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        />
-        <Text variant="headlineMedium" style={styles.headerTitle}>
-          Edit Patient
-        </Text>
-      </Surface>
+      <CustomHeader title="Edit Patient" />
+
 
       {/* form */}
       <View style={styles.form}>

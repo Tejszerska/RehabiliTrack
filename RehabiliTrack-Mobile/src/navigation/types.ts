@@ -2,6 +2,7 @@ export type RootStackParamList = {
   Main: undefined; // do nawigacji 
   Home: undefined;
 
+  // PATIENTS
   PatientList: undefined;
   AddPatient: undefined;
   PatientDetails: {
@@ -10,6 +11,12 @@ export type RootStackParamList = {
   EditPatient: {
     patientId: number
   }
+  
+  // THERAPISTS
+  TherapistsList: undefined; 
+  AddTherapist: undefined;
+  EditTherapist: { therapistId: number };
+  
 
 Appointments: undefined;
 StayList: undefined;

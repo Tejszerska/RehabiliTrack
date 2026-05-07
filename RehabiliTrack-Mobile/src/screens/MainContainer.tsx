@@ -6,7 +6,6 @@ import PatientListScreen from "./Patients/PatientListScreen";
 import AppointmentsScreen from "./Appointments/AppointmentsScreen";
 import StayListScreen from "./Stays/StayListScreen";
 
-
 const renderScene = BottomNavigation.SceneMap({
   home: HomeScreen,
   patients: PatientListScreen,
@@ -26,7 +25,7 @@ const MainContainer = () => {
     ]);
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.dummyContainer}>
       <Appbar.Header style={{ backgroundColor: theme.colors.primary }}>
         <Appbar.Action 
           icon="calendar-clock" 
@@ -35,7 +34,8 @@ const MainContainer = () => {
         />
         <Appbar.Content 
           title="RehabiliTrack" 
-          titleStyle={{ color: theme.colors.onPrimary, fontWeight: 'bold', fontSize: 22 }} 
+          titleStyle={[styles.titleStyle,
+            { color: theme.colors.onPrimary }]} 
         />
       </Appbar.Header>
 
@@ -53,10 +53,13 @@ const MainContainer = () => {
 const styles = StyleSheet.create({
   dummyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#FDFBF7',
+  },
+  titleStyle: {
+    fontWeight: 'bold',
+    fontSize: 22
   }
+
 });
 
 export default MainContainer;

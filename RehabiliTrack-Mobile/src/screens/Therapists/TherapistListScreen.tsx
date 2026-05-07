@@ -1,175 +1,105 @@
-// import React, { useState } from 'react';
-import { View, FlatList, StyleSheet } from 'react-native';
-import { Patient } from '../../types/models';
+import React, { useCallback } from 'react';
+import { View, StyleSheet, FlatList, Alert } from 'react-native';
+import { Text, useTheme, FAB, ActivityIndicator } from 'react-native-paper';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
-import { TextInput, Button, Text, FAB, Surface, List, useTheme, ActivityIndicator } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { usePatients } from '../../context/PatientsContext';
-import { useCallback } from 'react';
+import { useTherapists } from '../../context/TherapistsContext';
+import TherapistCard from '../../components/TherapistCard';
+import CustomHeader from '../../components/CustomHeader';
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type Props = NativeStackScreenProps<RootStackParamList, 'TherapistsList'>;
 
-const TherapistListScreen = () => {
-  const { patients, loading, error, refreshPatients } = usePatients();
-  const navigation = useNavigation<NavigationProp>();
+const TherapistListScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
+  const { therapists, loading, deleteTherapist, refreshTherapists } = useTherapists();
 
-  const goToPatientDetails = (id: number): void => {
-    navigation.navigate('PatientDetails', {
-      patientId: id
-    }); 
-  };
-
-  const renderRightIcon = useCallback(
-    (props: any) => <List.Icon {...props} icon="chevron-right" color={theme.colors.primary} />,
-    [theme.colors.primary]
-  )
-  
-  /*
-  ============ DODATKOWY ELEMENT LAB 5 ============
-            == wersja z mocków z lab 1 pacjenci ==
-  const [searchQuery, setSearchQuery] = useState('');
-  const [displayPatients, setDisplayPatients] = useState<Patient[]>([]);
-  
-
-  const handleSearch = () => {
-    const filtered = patients.filter(p => 
-      p.lastName.toLowerCase().startsWith(searchQuery.toLowerCase()) ||
-      p.firstName.toLowerCase().startsWith(searchQuery.toLowerCase())
+  const handleDeleteTherapist = useCallback((id: number) => {
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to remove this therapist from the system?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteTherapist(id);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete therapist.');
+            }
+          }
+        }
+      ]
     );
-    setDisplayPatients(filtered);
-  };
+  }, [deleteTherapist]);
 
-  const handleClear = () => {
-    setSearchQuery('');
-    setDisplayPatients(patients);
-  };
-  */
+  const handleEditTherapist = useCallback((id: number) => {
+    navigation.navigate('EditTherapist', { therapistId: id });
+  }, [navigation]);
 
-  const renderPatientItem = ({ item }: { item: Patient }) => (
-    <Surface style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={1}>
-      <List.Item
-        title={`${item.firstName} ${item.lastName}`}
-        description={`PESEL: ${item.pesel}`}
-        titleStyle={styles.name}
-        descriptionStyle={styles.details}
-        right={renderRightIcon}
-        onPress={() => {goToPatientDetails(item.id)}} 
-      />
-    </Surface>
-  );
+  // one item (card)
+  const renderItem = useCallback(({ item }: any) => (
+    <TherapistCard 
+      therapist={item} 
+      onEdit={handleEditTherapist}
+      onDelete={handleDeleteTherapist}
+    />
+  ), [handleEditTherapist, handleDeleteTherapist]);
 
-  if (loading) {
+  // when no therapists in d.b.
+  const renderEmpty = useCallback(() => (
+    <View style={styles.centerBox}>
+      <Text variant="bodyMedium">No therapists found.</Text>
+    </View>
+  ), []);
+
+  if (loading && therapists.length === 0) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator animating={true} size="large" />
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.centered}>
-        <Text style={{ color: theme.colors.error }}>Error: {error}</Text>
+      <View style={styles.centerBox}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
     );
   }
 
   return (
+    
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.searchSection}>
-        
-        <TextInput
-          mode="outlined"
-          label="Enter name or surname..."
-          // value={searchQuery}
-          // onChangeText={setSearchQuery}
-          style={styles.searchInput}
-          right={<TextInput.Icon icon="magnify" />}
-        />
-        
-        <View style={styles.buttonRow}>
-          <Button 
-            mode="contained" 
-            // onPress={handleSearch} 
-            style={styles.button}
-            icon="magnify"
-          >
-            Search
-          </Button>
-          
-          <Button 
-            mode="outlined" 
-            // onPress={handleClear} 
-            style={styles.button}
-            icon="close"
-          >
-            Clear
-          </Button>
-        </View>
-      </View>
+          <CustomHeader title="Therapists" />
 
       <FlatList
-        data={patients}
-        renderItem={renderPatientItem}
+        data={therapists}
         keyExtractor={(item) => item.id.toString()}
-        onRefresh={refreshPatients}
-        refreshing={loading}
+        renderItem={renderItem}
+        ListEmptyComponent={renderEmpty}
         contentContainerStyle={styles.listContent}
-        ListEmptyComponent={<Text style={styles.emptyText}>No patients found.</Text>}
+        onRefresh={refreshTherapists}
+        refreshing={loading}
       />
 
       <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        color={theme.colors.onPrimary}
-        onPress={() => navigation.navigate('AddPatient')}
-      />
+              icon="plus"
+              style={[styles.fab, { backgroundColor: theme.colors.primary }]}
+              color={theme.colors.onPrimary}
+              onPress={() => navigation.navigate('AddTherapist')}
+            />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1 
+  container: {
+    flex: 1,
   },
-  searchSection: { 
-    paddingHorizontal: 20, 
-    marginBottom: 15,
-    marginTop: 15 
+  centerBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
   },
-  searchInput: {
-    marginBottom: 10,
-  },
-  buttonRow: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between' 
-  },
-  button: {
-    flex: 0.48, 
-  },
-  listContent: { 
-    paddingHorizontal: 20, 
-    paddingBottom: 100 
-  },
-  card: {
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  name: { 
-    fontSize: 18, 
-    fontWeight: '600' 
-  },
-  details: { 
-    fontSize: 14, 
-    marginTop: 2 
-  },
-  emptyText: { 
-    textAlign: 'center', 
-    marginTop: 50, 
-    color: '#999', 
-    fontSize: 16 
+  listContent: {
+    paddingVertical: 16
   },
   fab: {
     position: 'absolute',
@@ -177,11 +107,6 @@ const styles = StyleSheet.create({
     bottom: 30,
     borderRadius: 30
   },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  }
 });
 
 export default TherapistListScreen;

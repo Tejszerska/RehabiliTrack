@@ -6,10 +6,10 @@ import { RootStackParamList } from '../../navigation/types';
 import { usePatients } from '../../context/PatientsContext';
 import { UpdatePatientRequest } from '../../types/models';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'EditPatient'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'EditTherapist'>;
 
 
-const EditPatientScreen: React.FC<Props> = ({ route, navigation }) => {
+const EditTherapistScreen: React.FC<Props> = ({ route, navigation }) => {
   const { patientId } = route.params;
 
   const theme = useTheme();
@@ -229,4 +229,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default EditPatientScreen;
+export default EditTherapistScreen;

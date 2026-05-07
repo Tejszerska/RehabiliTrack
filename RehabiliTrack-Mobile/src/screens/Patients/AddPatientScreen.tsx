@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { TextInput, Button, useTheme, Text, Surface, IconButton } from 'react-native-paper';
+import { TextInput, Button, useTheme} from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { usePatients } from '../../context/PatientsContext';
 import { CreatePatientRequest } from '../../types/models';
+import CustomHeader from '../../components/CustomHeader';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -70,18 +71,8 @@ const AddPatientScreen = () => {
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} bounces={false}>
       
       {/* back arrow instead of default header */}
-      <Surface style={[styles.header, { backgroundColor: theme.colors.primary }]} elevation={2}>
-        <IconButton
-          icon="arrow-left"
-          iconColor={theme.colors.onPrimary}
-          size={28}
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        />
-        <Text variant="headlineMedium" style={styles.headerTitle}>
-          New Patient
-        </Text>
-      </Surface>
+      <CustomHeader title="New Patient" />
+
 
       {/* form */}
       <View style={styles.form}>

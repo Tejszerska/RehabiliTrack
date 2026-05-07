@@ -1,10 +1,9 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Platform } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Surface, useTheme, IconButton, Button } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
-import { grey100 } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -67,7 +66,7 @@ const HomeScreen = () => {
         {/* ROW: Therapists */}
         <View style={styles.actionRow}>
           <Button 
-            onPress={() => {}} 
+            onPress={() => navigation.navigate('TherapistsList')} 
             style={styles.mainActionButton}
             contentStyle={styles.buttonContent}
           >
@@ -77,7 +76,7 @@ const HomeScreen = () => {
             icon="plus" 
             containerColor={theme.colors.secondary}
             iconColor="white"
-            onPress={() => {}} 
+            onPress={() => navigation.navigate('AddTherapist')}
           />
         </View>
 

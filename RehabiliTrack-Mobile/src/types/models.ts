@@ -35,6 +35,31 @@ export interface UpdatePatientRequest extends CreatePatientRequest {
 }
 
 
+// THERAPIST
+export interface Therapist extends BaseEntity {
+  firstName: string;
+  lastName: string;
+  licenseNumber: string; // PWZ
+  phoneNumber?: string;
+  notes?: string;
+  therapistRoleId: number;
+  therapistRoleName: string;
+}
+
+export interface CreateTherapistRequest {
+  firstName: string;
+  lastName: string;
+  licenseNumber: string; 
+  phoneNumber?: string;
+  notes?: string;
+    therapistRoleId: number;
+
+}
+
+export interface UpdateTherapistRequest extends CreateTherapistRequest {
+  id: number
+}
+
 // below are versions for 1st lab - may need fixing 
 
 
@@ -45,16 +70,6 @@ export type TherapistRole =
   | 'Assistant' 
   | 'Art Therapist' 
   | 'Occupational Therapist';
-
-export interface Therapist extends BaseEntity {
-  firstName: string;
-  lastName: string;
-  licenseNumber: string; // PWZ
-  role: TherapistRole;
-  phoneNumber?: string;
-  notes?: string;
-}
-
 
 
 export type RoomType = 
