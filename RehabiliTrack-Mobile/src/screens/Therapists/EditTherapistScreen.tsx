@@ -1,99 +1,93 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { TextInput, Button, useTheme, Text, Surface, IconButton } from 'react-native-paper';
+import { TextInput, Button, useTheme, Text } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
-import { usePatients } from '../../context/PatientsContext';
-import { UpdatePatientRequest } from '../../types/models';
+import { useTherapists } from '../../context/TherapistsContext';
+import { UpdateTherapistRequest } from '../../types/models';
+import CustomHeader from '../../components/CustomHeader';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EditTherapist'>;
 
-
 const EditTherapistScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { patientId } = route.params;
+  const { therapistId } = route.params;
 
   const theme = useTheme();
-  const { patients, updatePatient } = usePatients();  
-  const patient = patients.find(p => p.id === patientId);
+  const { therapists, updateTherapist } = useTherapists();  
+  const therapist = therapists.find(t => t.id === therapistId);
 
-  const [firstName, setFirstName] = useState(patient?.firstName || '');
-  const [lastName, setLastName] = useState(patient?.lastName || '');
-  const [pesel, setPesel] = useState(patient?.pesel || '');
-  const [phoneNumber, setPhoneNumber] = useState(patient?.phoneNumber || '');
-  const [notes, setNotes] = useState(patient?.notes || '');
+  const [firstName, setFirstName] = useState(therapist?.firstName || '');
+  const [lastName, setLastName] = useState(therapist?.lastName || '');
+  const [licenseNumber, setLicenseNumber] = useState(therapist?.licenseNumber || '');
+  const [roleId, setRoleId] = useState(therapist?.therapistRoleId ? therapist.therapistRoleId.toString() : '');
+  const [phoneNumber, setPhoneNumber] = useState(therapist?.phoneNumber || '');
+  const [notes, setNotes] = useState(therapist?.notes || '');
 
   const [submitting, setSubmitting] = useState(false);
 
-  if (!patient) {
+  if (!therapist) {
     return (
       <View style={styles.centerContainer}>
-        <Text>Patient not found</Text>
+        <Text>Therapist not found</Text>
       </View>
     );
   }
 
   const handleSubmit = async () => {
-
     try {
-        // VALIDATION 
+      // VALIDATION 
       if (!firstName.trim()) {
-          Alert.alert('Error', 'First name is required');
-          return; 
-        }
+        Alert.alert('Error', 'First name is required');
+        return; 
+      }
       if (!lastName.trim()) {
-          Alert.alert('Error', 'Last name i srequired');
-          return;
-        }
-        if (!pesel.trim() || pesel.trim().length !== 11) {
-          Alert.alert('Error', 'PESEL needs to be exactly 11 characters long');
-          return;
-        }
+        Alert.alert('Error', 'Last name is required');
+        return;
+      }
+      if (!licenseNumber.trim()) {
+        Alert.alert('Error', 'License number (PWZ) is required');
+        return;
+      }
+      
+      const parsedRoleId = parseInt(roleId.trim(), 10);
+      if (!roleId.trim() || isNaN(parsedRoleId)) {
+        Alert.alert('Error', 'Valid Role ID is required');
+        return;
+      }
 
-        // SENDING TO API
-        setSubmitting(true); // block repeated submitting
-        
-        const formData: UpdatePatientRequest = {
-          id: patientId,
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
-          pesel: pesel.trim(),
-          phoneNumber: phoneNumber.trim() === '' ? undefined : phoneNumber.trim(),
-          notes: notes.trim() === '' ? undefined : notes.trim()
-         };
+      // SENDING TO API
+      setSubmitting(true); 
+      
+      const formData: UpdateTherapistRequest = {
+        id: therapistId,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        licenseNumber: licenseNumber.trim(),
+        therapistRoleId: parsedRoleId,
+        phoneNumber: phoneNumber.trim() === '' ? undefined : phoneNumber.trim(),
+        notes: notes.trim() === '' ? undefined : notes.trim()
+      };
 
-        await updatePatient(patientId, formData);
+      await updateTherapist(therapistId, formData);
 
-          // SUCCESS
-            Alert.alert('Success', 'Patient updated correctly', [
-            { text: 'OK', onPress: () => navigation.goBack() }
-          ]); 
+      // SUCCESS
+      Alert.alert('Success', 'Therapist updated correctly', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]); 
           
-          //ERRORS (server)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      Alert.alert('Error', 'There was a problem. Patient was not updated.');
+      Alert.alert('Error', 'There was a problem. Therapist was not updated.');
     } finally {
       setSubmitting(false);
     }
-
   };
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} bounces={false}>
       
-      {/* back arrow instead of default header */}
-      <Surface style={[styles.header, { backgroundColor: theme.colors.primary }]} elevation={2}>
-        <IconButton
-          icon="arrow-left"
-          iconColor={theme.colors.onPrimary}
-          size={28}
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        />
-        <Text variant="headlineMedium" style={styles.headerTitle}>
-          Edit Patient
-        </Text>
-      </Surface>
+      {/* Użycie Twojego nowego, czystego komponentu nagłówka */}
+      <CustomHeader title="Edit Therapist" />
 
       {/* form */}
       <View style={styles.form}>
@@ -104,7 +98,7 @@ const EditTherapistScreen: React.FC<Props> = ({ route, navigation }) => {
           value={firstName}
           onChangeText={setFirstName}
           style={styles.input}
-          disabled={submitting} // blocks edit when submiting
+          disabled={submitting} 
         />
 
         <TextInput 
@@ -119,12 +113,21 @@ const EditTherapistScreen: React.FC<Props> = ({ route, navigation }) => {
 
         <TextInput 
           mode="outlined"
-          label="PESEL *"
-          placeholder="11 digits" 
+          label="License (PWZ) *"
+          placeholder="e.g. 1234567" 
+          value={licenseNumber}
+          onChangeText={setLicenseNumber}
+          style={styles.input}
+          disabled={submitting}
+        />
+
+        <TextInput 
+          mode="outlined"
+          label="Therapist Role ID *"
+          placeholder="e.g. 1" 
           keyboardType="numeric" 
-          maxLength={11} 
-          value={pesel}
-          onChangeText={setPesel}
+          value={roleId}
+          onChangeText={setRoleId}
           style={styles.input}
           disabled={submitting}
         />
@@ -143,7 +146,7 @@ const EditTherapistScreen: React.FC<Props> = ({ route, navigation }) => {
         <TextInput 
           mode="outlined"
           label="Internal Notes"
-          placeholder="Medical history, allergies, etc." 
+          placeholder="Specialties, availability, etc." 
           multiline 
           numberOfLines={4} 
           value={notes}
@@ -166,7 +169,7 @@ const EditTherapistScreen: React.FC<Props> = ({ route, navigation }) => {
             mode="contained" 
             style={styles.button}
             onPress={handleSubmit}
-            loading={submitting} // React Native Paper -> loading icon
+            loading={submitting}
             disabled={submitting}
           >
            {submitting ? 'Saving...' : 'Update'}
@@ -186,23 +189,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  header: {
-    paddingTop: 40, 
-    paddingBottom: 25,
-    alignItems: 'center',
-    position: 'relative',
-  },
-  backButton: {
-    position: 'absolute',
-    top: 40, 
-    left: 10,
-    zIndex: 10,
-  },
-  headerTitle: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    marginTop: 10,
-  },
   form: {
     padding: 20,
   },
@@ -218,14 +204,6 @@ const styles = StyleSheet.create({
   button: {
     flex: 0.48,
     paddingVertical: 5,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 5,
-    marginBottom: 20,
-    paddingHorizontal: 5,
   }
 });
 

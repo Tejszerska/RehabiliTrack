@@ -1,87 +1,80 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { TextInput, Button, useTheme, Text, Surface, IconButton } from 'react-native-paper';
+import { TextInput, Button, useTheme} from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
-import { usePatients } from '../../context/PatientsContext';
-import { CreatePatientRequest } from '../../types/models';
+import { useTherapists } from '../../context/TherapistsContext';
+import { CreateTherapistRequest } from '../../types/models';
+import CustomHeader from '../../components/CustomHeader';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const AddTherapistScreen = () => {
   const theme = useTheme();
   const navigation = useNavigation<NavigationProp>();
-  const { createPatient } = usePatients();
+  const { createTherapist } = useTherapists();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [pesel, setPesel] = useState('');
+  const [licenseNumber, setLicenseNumber] = useState(''); // Zmiana z pesel na licenseNumber
+  const [roleId, setRoleId] = useState(''); // Dodano roleId wpisywane ręcznie
   const [phoneNumber, setPhoneNumber] = useState('');
   const [notes, setNotes] = useState('');
 
   const [submitting, setSubmitting] = useState(false);
 
-
   const handleSubmit = async () => {
-
     try {
-        // VALIDATION 
+      // VALIDATION 
       if (!firstName.trim()) {
-          Alert.alert('Error', 'First name is required');
-          return; 
-        }
+        Alert.alert('Error', 'First name is required');
+        return; 
+      }
       if (!lastName.trim()) {
-          Alert.alert('Error', 'Last name i srequired');
-          return;
-        }
-        if (!pesel.trim() || pesel.trim().length !== 11) {
-          Alert.alert('Error', 'PESEL needs to be exactly 11 characters long');
-          return;
-        }
+        Alert.alert('Error', 'Last name is required');
+        return;
+      }
+      if (!licenseNumber.trim()) {
+        Alert.alert('Error', 'License number (PWZ) is required');
+        return;
+      }
+      
+      const parsedRoleId = parseInt(roleId.trim(), 10);
+      if (!roleId.trim() || isNaN(parsedRoleId)) {
+        Alert.alert('Error', 'Valid Role ID is required');
+        return;
+      }
 
-        // SENDING TO API
-        setSubmitting(true); // block repeated submitting
-        const formData: CreatePatientRequest = {
-            firstName: firstName.trim(),
-            lastName: lastName.trim(),
-            pesel: pesel.trim(),
-            phoneNumber: phoneNumber.trim() === '' ? undefined : phoneNumber.trim(),
-            notes: notes.trim() === '' ? undefined : notes.trim(),
-          };
-          await createPatient(formData);
+      // SENDING TO API
+      setSubmitting(true);
+      const formData: CreateTherapistRequest = {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        licenseNumber: licenseNumber.trim(), // Używamy licenseNumber
+        therapistRoleId: parsedRoleId,       // Używamy zrzutowanego roleId
+        phoneNumber: phoneNumber.trim() === '' ? undefined : phoneNumber.trim(),
+        notes: notes.trim() === '' ? undefined : notes.trim(),
+      };
+      
+      await createTherapist(formData);
 
-          // SUCCESS
-            Alert.alert('Success', 'Patient saved correctly', [
-            { text: 'OK', onPress: () => navigation.goBack() }
-          ]); 
-          
-          //ERRORS (server)
+      // SUCCESS
+      Alert.alert('Success', 'Therapist saved correctly', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]); 
+      
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      Alert.alert('Error', 'There was a problem. Patient was not saved.');
+      Alert.alert('Error', 'There was a problem. Therapist was not saved.');
     } finally {
       setSubmitting(false);
     }
-
   };
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} bounces={false}>
-      
-      {/* back arrow instead of default header */}
-      <Surface style={[styles.header, { backgroundColor: theme.colors.primary }]} elevation={2}>
-        <IconButton
-          icon="arrow-left"
-          iconColor={theme.colors.onPrimary}
-          size={28}
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        />
-        <Text variant="headlineMedium" style={styles.headerTitle}>
-          New Patient
-        </Text>
-      </Surface>
+      <CustomHeader title="New Therapist" />
 
       {/* form */}
       <View style={styles.form}>
@@ -92,7 +85,7 @@ const AddTherapistScreen = () => {
           value={firstName}
           onChangeText={setFirstName}
           style={styles.input}
-          disabled={submitting} // blocks edit when submiting
+          disabled={submitting}
         />
 
         <TextInput 
@@ -107,12 +100,21 @@ const AddTherapistScreen = () => {
 
         <TextInput 
           mode="outlined"
-          label="PESEL *"
-          placeholder="11 digits" 
+          label="License (PWZ) *"
+          placeholder="e.g. 1234567" 
+          value={licenseNumber}
+          onChangeText={setLicenseNumber}
+          style={styles.input}
+          disabled={submitting}
+        />
+
+        <TextInput 
+          mode="outlined"
+          label="Therapist Role ID *"
+          placeholder="e.g. 1" 
           keyboardType="numeric" 
-          maxLength={11} 
-          value={pesel}
-          onChangeText={setPesel}
+          value={roleId}
+          onChangeText={setRoleId}
           style={styles.input}
           disabled={submitting}
         />
@@ -131,7 +133,7 @@ const AddTherapistScreen = () => {
         <TextInput 
           mode="outlined"
           label="Internal Notes"
-          placeholder="Medical history, allergies, etc." 
+          placeholder="Specialties, availability, etc." 
           multiline 
           numberOfLines={4} 
           value={notes}
@@ -154,10 +156,10 @@ const AddTherapistScreen = () => {
             mode="contained" 
             style={styles.button}
             onPress={handleSubmit}
-            loading={submitting} // React Native Paper -> loading icon
+            loading={submitting}
             disabled={submitting}
           >
-           {submitting ? 'Saving...' : 'Save Patient'}
+           {submitting ? 'Saving...' : 'Save Therapist'}
           </Button>
         </View>
       </View>
@@ -168,23 +170,6 @@ const AddTherapistScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  header: {
-    paddingTop: 40, 
-    paddingBottom: 25,
-    alignItems: 'center',
-    position: 'relative',
-  },
-  backButton: {
-    position: 'absolute',
-    top: 40, 
-    left: 10,
-    zIndex: 10,
-  },
-  headerTitle: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    marginTop: 10,
   },
   form: {
     padding: 20,

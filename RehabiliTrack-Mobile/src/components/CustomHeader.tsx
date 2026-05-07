@@ -5,28 +5,31 @@ import { useNavigation } from '@react-navigation/native';
 
 interface CustomHeaderProps {
   title: string;
+  showBackButton?: boolean; 
 }
 
 const CustomHeader: React.FC<CustomHeaderProps> = ({ 
-  title
+  title,
+  showBackButton = true
 }) => {
   const theme = useTheme();
   const navigation = useNavigation();
 
-  const handlePress = () => {    
+  const handlePress = () => {
       navigation.goBack();
-    
   };
 
   return (
-    <Surface style={[styles.header, { backgroundColor: theme.colors.primary }]} elevation={2}>      
+    <Surface style={[styles.header, { backgroundColor: theme.colors.primary }]} elevation={2}>
+      {showBackButton && (
         <IconButton
           icon="arrow-left"
           iconColor={theme.colors.onPrimary}
           size={28}
           style={styles.backButton}
           onPress={handlePress}
-        />      
+        />
+      )}
       <Text variant="headlineMedium" style={[styles.headerTitle, { color: theme.colors.onPrimary }]}>
         {title}
       </Text>
@@ -37,7 +40,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
 const styles = StyleSheet.create({
   header: {
     paddingTop: 50, 
-    paddingBottom: 15,
+    paddingBottom: 25,
     position: 'relative',
     alignItems: 'center', 
     justifyContent: 'center',

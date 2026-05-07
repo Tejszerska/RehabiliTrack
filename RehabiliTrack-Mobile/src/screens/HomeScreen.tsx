@@ -49,9 +49,10 @@ const HomeScreen = () => {
         {/* ROW: Rehab Rooms */}
         <View style={styles.actionRow}>
           <Button 
-            onPress={() => {}} 
             style={styles.mainActionButton}
             contentStyle={styles.buttonContent}
+            onPress={() => navigation.navigate('RoomsList')}
+
           >
            Rehab Rooms
           </Button>
@@ -59,7 +60,7 @@ const HomeScreen = () => {
             icon="plus" 
             containerColor={theme.colors.secondary}
             iconColor="white"
-            onPress={() => {}} 
+            onPress={() => navigation.navigate('AddRoom')}
           />
         </View>
 
@@ -80,23 +81,57 @@ const HomeScreen = () => {
           />
         </View>
 
-        {/* ROW: Stays */}
+        {/* ROW: Treatments */}
         <View style={styles.actionRow}>
           <Button 
-            onPress={() => navigation.navigate('StayList')} 
+            onPress={() => navigation.navigate('TreatmentsList')} 
             style={styles.mainActionButton}
             contentStyle={styles.buttonContent}
           >
-            Stays
+            Treatments
           </Button>
           <IconButton 
             icon="plus" 
             containerColor={theme.colors.secondary}
             iconColor="white"
-            onPress={() => {}} 
+            onPress={() => navigation.navigate('AddTreatment')} 
           />
         </View>
 
+        {/* ROW: Room Types */}
+        <View style={styles.actionRow}>
+          <Button 
+            onPress={() => navigation.navigate('RoomTypesList')} 
+            style={styles.mainActionButton}
+            contentStyle={styles.buttonContent}
+          >
+            Room Types
+          </Button>
+          <IconButton 
+            icon="plus" 
+            containerColor={theme.colors.secondary}
+            iconColor="white"
+            onPress={() => navigation.navigate('AddRoomType')} 
+          />
+        </View>
+
+        {/* ROW: Therapist Roles */}
+        <View style={styles.actionRow}>
+          <Button 
+            onPress={() => navigation.navigate('TherapistRolesList')} 
+            style={styles.mainActionButton}
+            contentStyle={styles.buttonContent}
+          >
+            Therapist Roles
+          </Button>
+          <IconButton 
+            icon="plus" 
+            containerColor={theme.colors.secondary}
+            iconColor="white"
+            onPress={() => navigation.navigate('AddTherapistRoles')} 
+          />
+        </View>
+        
       </View>
     </ScrollView>
   );
