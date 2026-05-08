@@ -1,49 +1,78 @@
 import React, { useCallback } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
-import { List, FAB, useTheme } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { View, StyleSheet, FlatList, Alert } from 'react-native';
+import { useTheme, ActivityIndicator, Text } from 'react-native-paper';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
+import { useTreatments } from '../../context/TreatmentsContext';
 import CustomHeader from '../../components/CustomHeader';
+import DictionaryListItem from '../../components/DictionaryListItem';
+import AddFAB from '../../components/AddFAB';
+import DictionaryListHeader from '../../components/DictionaryListHeader';
 
-const TreatmentsListScreen = () => {
+type Props = NativeStackScreenProps<RootStackParamList, 'TreatmentsList'>;
+
+const TreatmentsListScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { treatments, loading, deleteTreatment, refreshTreatments } = useTreatments();
 
-  // MOCK DATA - tutaj docelowo będzie Twój Context
-  const data = [{ id: 1, name: 'Item 1' }, { id: 2, name: 'Item 2' }];
+  const handleDelete = useCallback((id: number) => {
+    Alert.alert(
+      'Delete Room Type',
+      'Are you sure? This might affect rooms assigned to this type.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive', 
+          onPress: () => deleteTreatment(id).catch(() => Alert.alert('Error', 'Could not delete.')) 
+        }
+      ]
+    );
+  }, [deleteTreatment]);
 
   const renderItem = useCallback(({ item }: any) => (
-    <List.Item
-      title={item.name}
-      description={`ID: ${item.id}`}
-      onPress={() => navigation.navigate('ItemDetails' as any, { itemId: item.id })}
-      right={props => <List.Icon {...props} icon="chevron-right" />}
+    <DictionaryListItem
+      id={item.id}
+      name={` ${item.name}, ${item.durationMinutes} min`}
+      onEdit={(id) => navigation.navigate('EditTreatment', { treatmentId: id })}
+      onDelete={handleDelete}
     />
-  ), [navigation]);
+  ), [navigation, handleDelete]);
+
+  if (loading && treatments.length === 0) {
+    return (
+      <View style={styles.centerBox}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <CustomHeader title="Lista Elementów" showBackButton={false} />
-      
+      <CustomHeader title="Treatments" showBackButton={true} />
+
       <FlatList
-        data={data}
+        data={treatments}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
+        ListHeaderComponent={<DictionaryListHeader leftTitle='ID: Role, duration [min]' />}
+        onRefresh={refreshTreatments}
+        refreshing={loading}
+        contentContainerStyle={styles.listContent}
+        ListEmptyComponent={<Text style={styles.emptyText}>No therapist roles defined.</Text>}
       />
 
-      <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primaryContainer }]}
-        onPress={() => navigation.navigate('AddItem' as any)}
-      />
+      <AddFAB onPress={() => navigation.navigate('AddTreatment')} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  fab: { position: 'absolute', margin: 16, right: 0, bottom: 0 },
+  centerBox: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  listContent: { paddingBottom: 100 },
+  emptyText: { textAlign: 'center', marginTop: 50, opacity: 0.5 },
+  fab: { position: 'absolute', margin: 16, right: 0, bottom: 16 },
 });
 
 export default TreatmentsListScreen;

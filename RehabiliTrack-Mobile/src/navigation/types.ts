@@ -29,8 +29,8 @@ export type RootStackParamList = {
 
   // THERAPIST ROLES 
   TherapistRolesList: undefined;
-  AddTherapistRoles: undefined;
-  EditTherapistRoles: { therapistRolesId: number };
+  AddTherapistRole: undefined;
+  EditTherapistRole: { therapistRolesId: number };
 
   // TREATMENTS
   TreatmentsList: undefined;

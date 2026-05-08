@@ -3,6 +3,7 @@ import { View, FlatList, StyleSheet, ScrollView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useTheme, Text, Card, Avatar, FAB, Chip } from 'react-native-paper';
+import AddFAB from '../../components/AddFAB';
 
 const MOCK_APPOINTMENTS = [
   { id: '1', time: '08:00 AM', patient: 'Jan Kowalski', therapist: 'Dr. House', treatment: 'Cryotherapy', room: '102', status: 'Completed' },
@@ -65,12 +66,7 @@ const AppointmentsScreen: React.FC<Props> = ({ navigation }) => {
         contentContainerStyle={styles.listContent}
       />
 
-      <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        color={theme.colors.onPrimary}
-        onPress={() => { }} // ADD NAV!
-      />
+      <AddFAB onPress={() => navigation.navigate('AddAppointment')} />
     </View>
   );
 };

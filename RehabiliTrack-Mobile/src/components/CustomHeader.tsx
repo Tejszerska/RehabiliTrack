@@ -40,7 +40,7 @@ const CustomHeader: React.FC<CustomHeaderProps> = ({
 const styles = StyleSheet.create({
   header: {
     paddingTop: 50, 
-    paddingBottom: 25,
+    paddingBottom: 15,
     position: 'relative',
     alignItems: 'center', 
     justifyContent: 'center',

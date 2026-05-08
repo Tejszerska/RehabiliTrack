@@ -120,12 +120,7 @@ const PatientListScreen = () => {
         ListEmptyComponent={<Text style={styles.emptyText}>No patients found.</Text>}
       />
 
-      <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        color={theme.colors.onPrimary}
-        onPress={() => navigation.navigate('AddPatient')}
-      />
+      <AddFAB onPress={() => navigation.navigate('AddPatient')} />
     </View>
   );
 };

@@ -3,6 +3,7 @@ import { View, FlatList, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useTheme, Text, Surface, List, FAB, ProgressBar } from 'react-native-paper';
+import AddFAB from '../../components/AddFAB';
 
 const MOCK_STAYS = [
   { id: '1', name: 'Autumn Stay 2026', startDate: '2026-09-01', endDate: '2026-09-14', enrolled: 12, capacity: 20 },
@@ -56,12 +57,7 @@ const StayListScreen: React.FC<Props> = ({ navigation }) => {
         ListHeaderComponent={<Text variant="titleLarge" style={[styles.headerText, { color: theme.colors.primary }]}>Active Stays</Text>}
       />
 
-      <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        color={theme.colors.onPrimary}
-        onPress={() => {/* Będzie prowadzić do AddStayScreen */}}
-      />
+      <AddFAB onPress={() => navigation.navigate('AddStay')} />
     </View>
   );
 };

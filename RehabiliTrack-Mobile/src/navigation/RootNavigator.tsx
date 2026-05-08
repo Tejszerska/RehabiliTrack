@@ -81,8 +81,8 @@ function RootNavigator(): React.JSX.Element {
 
         {/*========== THERAPIST ROLES ========== */}
         <Stack.Screen name="TherapistRolesList" component={TherapistRolesListScreen} />
-        <Stack.Screen name="AddTherapistRoles" component={AddTherapistRolesScreen} />
-        <Stack.Screen name="EditTherapistRoles" component={EditTherapistRolesScreen} />
+        <Stack.Screen name="AddTherapistRole" component={AddTherapistRolesScreen} />
+        <Stack.Screen name="EditTherapistRole" component={EditTherapistRolesScreen} />
 
         {/*========== TREATMENTS ========== */}
         <Stack.Screen name="TreatmentsList" component={TreatmentsListScreen} />

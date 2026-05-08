@@ -6,6 +6,7 @@ import { RootStackParamList } from '../../navigation/types';
 import { useTherapists } from '../../context/TherapistsContext';
 import TherapistCard from '../../components/TherapistCard';
 import CustomHeader from '../../components/CustomHeader';
+import AddFAB from '../../components/AddFAB';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TherapistsList'>;
 
@@ -78,12 +79,7 @@ const TherapistListScreen: React.FC<Props> = ({ navigation }) => {
         refreshing={loading}
       />
 
-      <FAB
-              icon="plus"
-              style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-              color={theme.colors.onPrimary}
-              onPress={() => navigation.navigate('AddTherapist')}
-            />
+      <AddFAB onPress={() => navigation.navigate('AddTherapist')} />
     </View>
   );
 };

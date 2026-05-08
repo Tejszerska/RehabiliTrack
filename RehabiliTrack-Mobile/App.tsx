@@ -3,6 +3,12 @@ import { PaperProvider, MD3LightTheme as DefaultTheme } from 'react-native-paper
 import RootNavigator from './src/navigation/RootNavigator';
 import { PatientsProvider } from './src/context/PatientsContext';
 import { TherapistsProvider } from './src/context/TherapistsContext';
+import { TherapistRolesProvider } from './src/context/TherapistRolesContext';
+import { RoomTypesProvider } from './src/context/RoomTypesContext';
+import { RehabRoomsProvider } from './src/context/RehabRoomsContext';
+import { AppointmentsProvider } from './src/context/AppointmentsContext';
+import { StaysProvider } from './src/context/StaysContext';
+import { TreatmentsProvider } from './src/context/TreatmentsContext';
 
 const theme = {
   ...DefaultTheme,
@@ -23,7 +29,19 @@ const App = () => {
     <PaperProvider theme={theme}>
       <PatientsProvider>
         <TherapistsProvider>
-        <RootNavigator />      
+          <TherapistRolesProvider>
+            <RoomTypesProvider>
+              <RehabRoomsProvider>
+                <TreatmentsProvider>
+                  <StaysProvider>
+                    <AppointmentsProvider>
+                      <RootNavigator />
+                    </AppointmentsProvider>
+                  </StaysProvider>
+                </TreatmentsProvider>
+              </RehabRoomsProvider>
+            </RoomTypesProvider>
+          </TherapistRolesProvider>
         </TherapistsProvider>
       </PatientsProvider>
     </PaperProvider>
