@@ -1,5 +1,16 @@
 import { API_BASE_URL } from './config';
-import type { Patient, CreatePatientRequest, UpdatePatientRequest, Therapist, CreateTherapistRequest, UpdateTherapistRequest } from '../types/models';
+import type { 
+  Patient, CreatePatientRequest, UpdatePatientRequest, 
+  Therapist, CreateTherapistRequest, UpdateTherapistRequest,
+  RehabRoom, CreateRehabRoomRequest, UpdateRehabRoomRequest,
+  RoomType, CreateRoomTypeRequest, UpdateRoomTypeRequest,
+  TherapistRole, CreateTherapistRoleRequest, UpdateTherapistRoleRequest,
+  Treatment, CreateTreatmentRequest, UpdateTreatmentRequest,
+  Stay, CreateStayRequest, UpdateStayRequest,
+  CreateAppointmentRequest, UpdateAppointmentRequest,
+  AppointmentListItem,
+  AppointmentDetails
+} from '../types/models';
 
 class ApiService {
   private baseUrl: string;
@@ -17,9 +28,6 @@ class ApiService {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
-    // Create a Headers instance when available (covers Headers | string[][] | Record).
-    // If a Headers constructor isn't present in the runtime/types, fall back to
-    // a plain object merge so `fetch` still receives headers in an acceptable shape.
     const HeadersCtor = (globalThis as any).Headers;
     let headers: any;
     if (HeadersCtor) {
@@ -34,7 +42,7 @@ class ApiService {
       };
     }
 
- try {
+    try {
       console.log(`API Request: ${options.method || 'GET'} ${url}`);
 
       const response = await fetch(url, {
@@ -65,7 +73,6 @@ class ApiService {
   }
 
   // === PATIENTS ===
-
   async getPatients(): Promise<Patient[]> {
     return this.request<Patient[]>('/Patients');
   }
@@ -74,21 +81,19 @@ class ApiService {
     return this.request<Patient>(`/Patients/${id}`);
   }
 
-async createPatient(
-  data: CreatePatientRequest)
-  : Promise<{ id: number }> {
-  return this.request<{ id: number }>('/Patients', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
-}
+  async createPatient(data: CreatePatientRequest): Promise<{ id: number }> {
+    return this.request<{ id: number }>('/Patients', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
 
-async updatePatient(id: number, data: UpdatePatientRequest): Promise<void> {
-  return this.request<void>(`/Patients/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify({ ...data, id: id }), 
-  });
-}
+  async updatePatient(id: number, data: UpdatePatientRequest): Promise<void> {
+    return this.request<void>(`/Patients/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ ...data, id: id }), 
+    });
+  }
 
   async deletePatient(id: number): Promise<void> {
     return this.request<void>(`/Patients/${id}`, {
@@ -97,8 +102,7 @@ async updatePatient(id: number, data: UpdatePatientRequest): Promise<void> {
   }
 
   // === THERAPISTS ===
-
-    async getTherapists(): Promise<Therapist[]> {
+  async getTherapists(): Promise<Therapist[]> {
     return this.request<Therapist[]>('/Therapists');
   }
 
@@ -106,21 +110,19 @@ async updatePatient(id: number, data: UpdatePatientRequest): Promise<void> {
     return this.request<Therapist>(`/Therapists/${id}`);
   }
 
-async createTherapist(
-  data: CreateTherapistRequest)
-  : Promise<{ id: number }> {
-  return this.request<{ id: number }>('/Therapists', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
-}
+  async createTherapist(data: CreateTherapistRequest): Promise<{ id: number }> {
+    return this.request<{ id: number }>('/Therapists', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
 
-async updateTherapist(id: number, data: UpdateTherapistRequest): Promise<void> {
-  return this.request<void>(`/Therapists/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify({ ...data, id: id }), 
-  });
-}
+  async updateTherapist(id: number, data: UpdateTherapistRequest): Promise<void> {
+    return this.request<void>(`/Therapists/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ ...data, id: id }), 
+    });
+  }
 
   async deleteTherapist(id: number): Promise<void> {
     return this.request<void>(`/Therapists/${id}`, {
@@ -128,6 +130,180 @@ async updateTherapist(id: number, data: UpdateTherapistRequest): Promise<void> {
     });
   }
 
+  // === REHAB ROOMS ===
+  async getRehabRooms(): Promise<RehabRoom[]> {
+    return this.request<RehabRoom[]>('/RehabRooms');
+  }
+
+  async getRehabRoom(id: number): Promise<RehabRoom> {
+    return this.request<RehabRoom>(`/RehabRooms/${id}`);
+  }
+
+  async createRehabRoom(data: CreateRehabRoomRequest): Promise<{ id: number }> {
+    return this.request<{ id: number }>('/RehabRooms', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateRehabRoom(id: number, data: UpdateRehabRoomRequest): Promise<void> {
+    return this.request<void>(`/RehabRooms/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ ...data, id: id }), 
+    });
+  }
+
+  async deleteRehabRoom(id: number): Promise<void> {
+    return this.request<void>(`/RehabRooms/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // === ROOM TYPES ===
+  async getRoomTypes(): Promise<RoomType[]> {
+    return this.request<RoomType[]>('/RoomTypes');
+  }
+
+  async getRoomType(id: number): Promise<RoomType> {
+    return this.request<RoomType>(`/RoomTypes/${id}`);
+  }
+
+  async createRoomType(data: CreateRoomTypeRequest): Promise<{ id: number }> {
+    return this.request<{ id: number }>('/RoomTypes', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateRoomType(id: number, data: UpdateRoomTypeRequest): Promise<void> {
+    return this.request<void>(`/RoomTypes/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ ...data, id: id }), 
+    });
+  }
+
+  async deleteRoomType(id: number): Promise<void> {
+    return this.request<void>(`/RoomTypes/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // === THERAPIST ROLES ===
+  async getTherapistRoles(): Promise<TherapistRole[]> {
+    return this.request<TherapistRole[]>('/TherapistRoles');
+  }
+
+  async getTherapistRole(id: number): Promise<TherapistRole> {
+    return this.request<TherapistRole>(`/TherapistRoles/${id}`);
+  }
+
+  async createTherapistRole(data: CreateTherapistRoleRequest): Promise<{ id: number }> {
+    return this.request<{ id: number }>('/TherapistRoles', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTherapistRole(id: number, data: UpdateTherapistRoleRequest): Promise<void> {
+    return this.request<void>(`/TherapistRoles/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ ...data, id: id }), 
+    });
+  }
+
+  async deleteTherapistRole(id: number): Promise<void> {
+    return this.request<void>(`/TherapistRoles/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // === TREATMENTS ===
+  async getTreatments(): Promise<Treatment[]> {
+    return this.request<Treatment[]>('/Treatments');
+  }
+
+  async getTreatment(id: number): Promise<Treatment> {
+    return this.request<Treatment>(`/Treatments/${id}`);
+  }
+
+  async createTreatment(data: CreateTreatmentRequest): Promise<{ id: number }> {
+    return this.request<{ id: number }>('/Treatments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateTreatment(id: number, data: UpdateTreatmentRequest): Promise<void> {
+    return this.request<void>(`/Treatments/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ ...data, id: id }), 
+    });
+  }
+
+  async deleteTreatment(id: number): Promise<void> {
+    return this.request<void>(`/Treatments/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // === STAYS ===
+  async getStays(): Promise<Stay[]> {
+    return this.request<Stay[]>('/Stays');
+  }
+
+  async getStay(id: number): Promise<Stay> {
+    return this.request<Stay>(`/Stays/${id}`);
+  }
+
+  async createStay(data: CreateStayRequest): Promise<{ id: number }> {
+    return this.request<{ id: number }>('/Stays', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateStay(id: number, data: UpdateStayRequest): Promise<void> {
+    return this.request<void>(`/Stays/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ ...data, id: id }), 
+    });
+  }
+
+  async deleteStay(id: number): Promise<void> {
+    return this.request<void>(`/Stays/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+// === APPOINTMENTS ===
+  async getAppointments(): Promise<AppointmentListItem[]> {
+    return this.request<AppointmentListItem[]>('/Appointments');
+  }
+
+  async getAppointment(id: number): Promise<AppointmentDetails> {
+    return this.request<AppointmentDetails>(`/Appointments/${id}`);
+  }
+
+  async createAppointment(data: CreateAppointmentRequest): Promise<{ id: number }> {
+    return this.request<{ id: number }>('/Appointments', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateAppointment(id: number, data: UpdateAppointmentRequest): Promise<void> {
+    return this.request<void>(`/Appointments/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ ...data, id: id }), 
+    });
+  }
+
+  async deleteAppointment(id: number): Promise<void> {
+    return this.request<void>(`/Appointments/${id}`, {
+      method: 'DELETE',
+    });
+  }
 }
+
 // Singleton
-export default new ApiService(); 
+export default new ApiService();
