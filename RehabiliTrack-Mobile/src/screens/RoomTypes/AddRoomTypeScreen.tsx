@@ -1,41 +1,114 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { TextInput, Button, useTheme } from 'react-native-paper';
+import { TextInput, Button, useTheme} from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigation/types';
+import { useRoomTypes } from '../../context/RoomTypesContext';
+import { CreateRoomTypeRequest } from '../../types/models';
 import CustomHeader from '../../components/CustomHeader';
 
-const AddRoomTypeScreen = ({ navigation }: any) => {
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+
+const AddRoomTypeScreen = () => {
   const theme = useTheme();
+  const navigation = useNavigation<NavigationProp>();
+  const { createRoomType } = useRoomTypes();
+
   const [name, setName] = useState('');
 
-  const handleSave = async () => {
-    // Tutaj logika API / Context
-    Alert.alert("Sukces", "Dodano element");
-    navigation.goBack();
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    try {
+      // VALIDATION 
+      if (!name.trim()) {
+        Alert.alert('Error', 'Name is required');
+        return; 
+      }
+
+      // SENDING TO API
+      setSubmitting(true);
+      const formData: CreateRoomTypeRequest = {
+        name: name.trim(),
+      };
+      
+      await createRoomType(formData);
+
+      // SUCCESS
+      Alert.alert('Success', 'Room type saved correctly', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]); 
+      
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      Alert.alert('Error', 'There was a problem. Room type was not saved.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <ScrollView style={{ backgroundColor: theme.colors.background }}>
-      <CustomHeader title="Dodaj Nowy" />
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} bounces={false}>
+      <CustomHeader title="New Room Type" />
+
+      {/* form */}
       <View style={styles.form}>
-        <TextInput
+        <TextInput 
           mode="outlined"
-          label="Nazwa"
+          label="Name *"
+          placeholder="e.g. Kinesitherapy" 
           value={name}
           onChangeText={setName}
           style={styles.input}
+          disabled={submitting}
         />
-        <Button mode="contained" onPress={handleSave} style={styles.button}>
-          Zapisz
-        </Button>
+
+        <View style={styles.buttonRow}>
+          <Button 
+            mode="outlined" 
+            style={styles.button}
+            onPress={() => navigation.goBack()}
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+
+          <Button 
+            mode="contained" 
+            style={styles.button}
+            onPress={handleSubmit}
+            loading={submitting}
+            disabled={submitting}
+          >
+           {submitting ? 'Saving...' : 'Save Room Type'}
+          </Button>
+        </View>
       </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  form: { padding: 20 },
-  input: { marginBottom: 15 },
-  button: { marginTop: 10 }
+  container: {
+    flex: 1,
+  },
+  form: {
+    padding: 20,
+  },
+  input: {
+    marginBottom: 15,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+    paddingBottom: 40,
+  },
+  button: {
+    flex: 0.48,
+    paddingVertical: 5,
+  },
 });
 
 export default AddRoomTypeScreen;

@@ -55,7 +55,7 @@ const RoomTypesListScreen: React.FC<Props> = ({ navigation }) => {
         data={roomTypes}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
-        ListHeaderComponent={<DictionaryListHeader leftTitle='ID: role'/>}
+        ListHeaderComponent={<DictionaryListHeader leftTitle='ID: type'/>}
         onRefresh={refreshRoomTypes}
         refreshing={loading}
         contentContainerStyle={styles.listContent}

@@ -17,8 +17,8 @@ const TherapistRolesListScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleDelete = useCallback((id: number) => {
     Alert.alert(
-      'Delete Room Type',
-      'Are you sure? This might affect rooms assigned to this type.',
+      'Delete Therapist Role',
+      'Are you sure? This might affect therapists assigned to this role.',
       [
         { text: 'Cancel', style: 'cancel' },
         { 

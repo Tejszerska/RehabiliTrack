@@ -17,8 +17,8 @@ const TreatmentsListScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleDelete = useCallback((id: number) => {
     Alert.alert(
-      'Delete Room Type',
-      'Are you sure? This might affect rooms assigned to this type.',
+      'Delete Treatment',
+      'Are you sure? This might affect appointments.',
       [
         { text: 'Cancel', style: 'cancel' },
         { 
@@ -55,7 +55,7 @@ const TreatmentsListScreen: React.FC<Props> = ({ navigation }) => {
         data={treatments}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
-        ListHeaderComponent={<DictionaryListHeader leftTitle='ID: Role, duration [min]' />}
+        ListHeaderComponent={<DictionaryListHeader leftTitle='ID: Name, duration [min]' />}
         onRefresh={refreshTreatments}
         refreshing={loading}
         contentContainerStyle={styles.listContent}
