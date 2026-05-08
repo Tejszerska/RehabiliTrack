@@ -1,6 +1,6 @@
 // import React, { useState } from 'react';
 import { View, FlatList, StyleSheet } from 'react-native';
-import { Patient } from '../../types/models';
+import { PatientListItem } from '../../types/models';
 import { RootStackParamList } from '../../navigation/types';
 import { TextInput, Button, Text, FAB, Surface, List, useTheme, ActivityIndicator } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
@@ -47,7 +47,7 @@ const PatientListScreen = () => {
   };
   */
 
-  const renderPatientItem = ({ item }: { item: Patient }) => (
+  const renderPatientItem = ({ item }: { item: PatientListItem }) => (
     <Surface style={[styles.card, { backgroundColor: theme.colors.surface }]} elevation={1}>
       <List.Item
         title={`${item.firstName} ${item.lastName}`}

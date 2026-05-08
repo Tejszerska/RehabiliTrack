@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { TextInput, Button, useTheme } from 'react-native-paper';
 import CustomHeader from '../../components/CustomHeader';
 
-const AddRoomScreen = ({ navigation }: any) => {
+const AddRehabRoomScreen = ({ navigation }: any) => {
   const theme = useTheme();
   const [name, setName] = useState('');
 
@@ -38,4 +38,4 @@ const styles = StyleSheet.create({
   button: { marginTop: 10 }
 });
 
-export default AddRoomScreen;
+export default AddRehabRoomScreen;

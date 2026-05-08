@@ -5,7 +5,7 @@ import { RootStackParamList } from "../../navigation/types";
 import { Avatar, Button, Divider, List, Surface, Text, useTheme, IconButton } from "react-native-paper";
 import { usePatients } from "../../context/PatientsContext";
 import apiService from '../../api/apiService';
-import { Patient } from "../../types/models";
+import { PatientDetails } from "../../types/models";
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PatientDetails'>;
 
@@ -15,10 +15,9 @@ const PatientDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const { deletePatient } = usePatients(); 
   
-  const [patient, setPatient] = useState<Patient | null>(null);
+  const [patient, setPatient] = useState<PatientDetails | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Pobieranie pełnych danych pacjenta (z turnusami) przy wejściu na ekran
   useEffect(() => {
     const fetchPatientData = async () => {
       try {

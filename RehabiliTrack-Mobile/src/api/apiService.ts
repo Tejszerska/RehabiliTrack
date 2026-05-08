@@ -1,6 +1,6 @@
 import { API_BASE_URL } from './config';
 import type { 
-  Patient, CreatePatientRequest, UpdatePatientRequest, 
+  PatientDetails, CreatePatientRequest, UpdatePatientRequest, 
   Therapist, CreateTherapistRequest, UpdateTherapistRequest,
   RehabRoom, CreateRehabRoomRequest, UpdateRehabRoomRequest,
   RoomType, CreateRoomTypeRequest, UpdateRoomTypeRequest,
@@ -9,7 +9,8 @@ import type {
   Stay, CreateStayRequest, UpdateStayRequest,
   CreateAppointmentRequest, UpdateAppointmentRequest,
   AppointmentListItem,
-  AppointmentDetails
+  AppointmentDetails,
+  PatientListItem
 } from '../types/models';
 
 class ApiService {
@@ -73,12 +74,12 @@ class ApiService {
   }
 
   // === PATIENTS ===
-  async getPatients(): Promise<Patient[]> {
-    return this.request<Patient[]>('/Patients');
+  async getPatients(): Promise<PatientListItem[]> {
+    return this.request<PatientDetails[]>('/Patients');
   }
 
-  async getPatient(id: number): Promise<Patient> {
-    return this.request<Patient>(`/Patients/${id}`);
+  async getPatient(id: number): Promise<PatientDetails> {
+    return this.request<PatientDetails>(`/Patients/${id}`);
   }
 
   async createPatient(data: CreatePatientRequest): Promise<{ id: number }> {

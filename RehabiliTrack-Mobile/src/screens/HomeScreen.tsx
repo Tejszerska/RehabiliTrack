@@ -51,7 +51,7 @@ const HomeScreen = () => {
           <Button 
             style={styles.mainActionButton}
             contentStyle={styles.buttonContent}
-            onPress={() => navigation.navigate('RoomsList')}
+            onPress={() => navigation.navigate('RehabRoomsList')}
 
           >
            Rehab Rooms
@@ -60,7 +60,7 @@ const HomeScreen = () => {
             icon="plus" 
             containerColor={theme.colors.secondary}
             iconColor="white"
-            onPress={() => navigation.navigate('AddRoom')}
+            onPress={() => navigation.navigate('AddRehabRoom')}
           />
         </View>
 

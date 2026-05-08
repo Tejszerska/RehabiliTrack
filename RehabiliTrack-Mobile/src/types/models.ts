@@ -7,7 +7,15 @@ export interface BaseEntity {
 
 // PATIENTS
 
-export interface Patient extends BaseEntity {
+export interface PatientListItem extends BaseEntity {
+  firstName: string;
+  lastName: string;
+  pesel: string;
+  phoneNumber?: string;
+  notes?: string;
+}
+
+export interface PatientDetails extends BaseEntity {
   firstName: string;
   lastName: string;
   pesel: string;

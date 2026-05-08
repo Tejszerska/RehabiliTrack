@@ -18,9 +18,9 @@ export type RootStackParamList = {
   EditTherapist: { therapistId: number };
 
   // REHAB ROOMS
-  RoomsList: undefined; 
-  AddRoom: undefined;
-  EditRoom: { roomId: number };
+  RehabRoomsList: undefined; 
+  AddRehabRoom: undefined;
+  EditRehabRoom: { roomId: number };
 
   // ROOM TYPES
   RoomTypesList: undefined;

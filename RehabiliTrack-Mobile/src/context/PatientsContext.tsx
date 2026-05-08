@@ -1,9 +1,9 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import apiService from '../api/apiService';
-import type { Patient, CreatePatientRequest, UpdatePatientRequest } from '../types/models';
+import type {CreatePatientRequest, UpdatePatientRequest, PatientListItem } from '../types/models';
 
 interface PatientsContextType {
-    patients: Patient[];
+    patients: PatientListItem[];
     loading: boolean;
     error: string | null;
 
@@ -19,7 +19,7 @@ const PatientsContext = createContext<PatientsContextType | undefined>(undefined
 
 
 export function PatientsProvider({ children }: { children: ReactNode }) {
-  const [patients, setPatients] = useState<Patient[]>([]);
+  const [patients, setPatients] = useState<PatientListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

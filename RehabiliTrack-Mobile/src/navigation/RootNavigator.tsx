@@ -17,9 +17,9 @@ import AddTherapistScreen from '../screens/Therapists/AddTherapistScreen';
 import EditTherapistScreen from '../screens/Therapists/EditTherapistScreen';
 
 // REHAB ROOMS
-import RoomsListScreen from '../screens/Rooms/RoomsListScreen';
-import AddRoomScreen from '../screens/Rooms/AddRoomScreen';
-import EditRoomScreen from '../screens/Rooms/EditRoomScreen';
+import RehabRoomsListScreen from '../screens/RehabRooms/RehabRoomsListScreen';
+import AddRehabRoomScreen from '../screens/RehabRooms/AddRehabRoomScreen';
+import EditRehabRoomScreen from '../screens/RehabRooms/EditRehabRoomScreen';
 
 // ROOM TYPES
 import RoomTypesListScreen from '../screens/RoomTypes/RoomTypesListScreen';
@@ -70,9 +70,9 @@ function RootNavigator(): React.JSX.Element {
         <Stack.Screen name="EditTherapist" component={EditTherapistScreen} />
 
         {/*========== REHAB ROOMS ========== */}
-        <Stack.Screen name="RoomsList" component={RoomsListScreen} />
-        <Stack.Screen name="AddRoom" component={AddRoomScreen} />
-        <Stack.Screen name="EditRoom" component={EditRoomScreen} />
+        <Stack.Screen name="RehabRoomsList" component={RehabRoomsListScreen} />
+        <Stack.Screen name="AddRehabRoom" component={AddRehabRoomScreen} />
+        <Stack.Screen name="EditRehabRoom" component={EditRehabRoomScreen} />
 
         {/*========== ROOM TYPES ========== */}
         <Stack.Screen name="RoomTypesList" component={RoomTypesListScreen} />

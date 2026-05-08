@@ -3,7 +3,7 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { TextInput, Button, useTheme } from 'react-native-paper';
 import CustomHeader from '../../components/CustomHeader';
 
-const EditRoomScreen = ({ route, navigation }: any) => {
+const EditRehabRoomScreen = ({ route, navigation }: any) => {
   const { itemId } = route.params;
   const theme = useTheme();
 
@@ -39,4 +39,4 @@ const styles = StyleSheet.create({
   input: { marginBottom: 15 }
 });
 
-export default EditRoomScreen;
+export default EditRehabRoomScreen;
