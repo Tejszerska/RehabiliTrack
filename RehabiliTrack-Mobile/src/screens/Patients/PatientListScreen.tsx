@@ -2,11 +2,12 @@
 import { View, FlatList, StyleSheet } from 'react-native';
 import { PatientListItem } from '../../types/models';
 import { RootStackParamList } from '../../navigation/types';
-import { TextInput, Button, Text, FAB, Surface, List, useTheme, ActivityIndicator } from 'react-native-paper';
+import { TextInput, Button, Text, Surface, List, useTheme, ActivityIndicator } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { usePatients } from '../../context/PatientsContext';
 import { useCallback } from 'react';
+import AddFAB from '../../components/AddFAB';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
