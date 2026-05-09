@@ -1,49 +1,107 @@
 import React, { useCallback } from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
-import { List, FAB, useTheme } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { View, StyleSheet, FlatList, Alert } from 'react-native';
+import { Text, useTheme, ActivityIndicator } from 'react-native-paper';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
+import { useRehabRooms } from '../../context/RehabRoomsContext';
+import RehabRoomCard from '../../components/RehabRoomCard';
 import CustomHeader from '../../components/CustomHeader';
+import AddFAB from '../../components/AddFAB';
 
-const RehabRoomsListScreen = () => {
+type Props = NativeStackScreenProps<RootStackParamList, 'RehabRoomsList'>;
+
+const RoomsListScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { rehabRooms, loading, deleteRehabRoom, refreshRehabRooms } = useRehabRooms();
 
-  // MOCK DATA - tutaj docelowo będzie Twój Context
-  const data = [{ id: 1, name: 'Item 1' }, { id: 2, name: 'Item 2' }];
+  const handleDeleteRoom = useCallback((id: number) => {
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to remove this room from the system?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteRehabRoom(id);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (error) {
+              Alert.alert('Error', 'Failed to delete room.');
+            }
+          }
+        }
+      ]
+    );
+  }, [deleteRehabRoom]);
 
+  const handleEditRoom = useCallback((id: number) => {
+    navigation.navigate('EditRehabRoom', { roomId: id });
+  }, [navigation]);
+
+  // one item (card)
   const renderItem = useCallback(({ item }: any) => (
-    <List.Item
-      title={item.name}
-      description={`ID: ${item.id}`}
-      onPress={() => navigation.navigate('ItemDetails' as any, { itemId: item.id })}
-      right={props => <List.Icon {...props} icon="chevron-right" />}
+    <RehabRoomCard 
+      room={item} 
+      onEdit={handleEditRoom}
+      onDelete={handleDeleteRoom}
     />
-  ), [navigation]);
+  ), [handleEditRoom, handleDeleteRoom]);
+
+  // when no rooms in d.b.
+  const renderEmpty = useCallback(() => (
+    <View style={styles.centerBox}>
+      <Text variant="bodyMedium">No rooms found.</Text>
+    </View>
+  ), []);
+
+  if (loading && rehabRooms.length === 0) {
+    return (
+      <View style={styles.centerBox}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
 
   return (
+    
     <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <CustomHeader title="Lista Elementów"  />
-      
+          <CustomHeader title="Rehab Rooms" />
+
       <FlatList
-        data={data}
+        data={rehabRooms}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
+        ListEmptyComponent={renderEmpty}
+        contentContainerStyle={styles.listContent}
+        onRefresh={refreshRehabRooms}
+        refreshing={loading}
       />
 
-      <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primaryContainer }]}
-        onPress={() => navigation.navigate('AddItem' as any)}
-      />
+      <AddFAB onPress={() => navigation.navigate('AddRehabRoom')} />
     </View>
   );
 };
-
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  fab: { position: 'absolute', margin: 16, right: 0, bottom: 0 },
+  container: {
+    flex: 1,
+  },
+  centerBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  listContent: {
+    paddingVertical: 16
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 30,
+    borderRadius: 30
+  },
 });
 
-export default RehabRoomsListScreen;
+export default RoomsListScreen;

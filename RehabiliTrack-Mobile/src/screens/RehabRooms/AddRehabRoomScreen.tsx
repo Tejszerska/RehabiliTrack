@@ -1,41 +1,168 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
 import { TextInput, Button, useTheme } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigation/types';
+import { useRehabRooms } from '../../context/RehabRoomsContext';
+import { CreateRehabRoomRequest } from '../../types/models';
 import CustomHeader from '../../components/CustomHeader';
 
-const AddRehabRoomScreen = ({ navigation }: any) => {
-  const theme = useTheme();
-  const [name, setName] = useState('');
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
-  const handleSave = async () => {
-    // Tutaj logika API / Context
-    Alert.alert("Sukces", "Dodano element");
-    navigation.goBack();
+const AddRoomScreen = () => {
+  const theme = useTheme();
+  const navigation = useNavigation<NavigationProp>();
+  const { createRehabRoom } = useRehabRooms();
+
+  const [name, setName] = useState('');
+  const [roomNumber, setRoomNumber] = useState('');
+  const [capacity, setCapacity] = useState('');
+  const [roomTypeId, setRoomTypeId] = useState(''); 
+
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    try {
+      // VALIDATION 
+      if (!name.trim()) {
+        Alert.alert('Error', 'Room name is required');
+        return; 
+      }
+      if (!roomNumber.trim()) {
+        Alert.alert('Error', 'Room number is required');
+        return;
+      }
+      
+      const parsedCapacity = parseInt(capacity.trim(), 10);
+      if (!capacity.trim() || isNaN(parsedCapacity) || parsedCapacity <= 0) {
+        Alert.alert('Error', 'Valid capacity is required');
+        return;
+      }
+
+      const parsedRoomTypeId = parseInt(roomTypeId.trim(), 10);
+      if (!roomTypeId.trim() || isNaN(parsedRoomTypeId)) {
+        Alert.alert('Error', 'Valid Room Type ID is required');
+        return;
+      }
+
+      // SENDING TO API
+      setSubmitting(true);
+      const formData: CreateRehabRoomRequest = {
+        name: name.trim(),
+        roomNumber: roomNumber.trim(),
+        capacity: parsedCapacity,
+        roomTypeId: parsedRoomTypeId,
+      };
+      
+      await createRehabRoom(formData);
+
+      // SUCCESS
+      Alert.alert('Success', 'Room saved correctly', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]); 
+      
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      Alert.alert('Error', 'There was a problem. Room was not saved.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <ScrollView style={{ backgroundColor: theme.colors.background }}>
-      <CustomHeader title="Dodaj Nowy" />
+    <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} bounces={false}>
+      <CustomHeader title="New Room" />
+
+      {/* form */}
       <View style={styles.form}>
-        <TextInput
+        <TextInput 
           mode="outlined"
-          label="Nazwa"
+          label="Room Name *"
+          placeholder="e.g. Main Gym" 
           value={name}
           onChangeText={setName}
           style={styles.input}
+          disabled={submitting}
         />
-        <Button mode="contained" onPress={handleSave} style={styles.button}>
-          Zapisz
-        </Button>
+
+        <TextInput 
+          mode="outlined"
+          label="Room Number *"
+          placeholder="e.g. 101A" 
+          value={roomNumber}
+          onChangeText={setRoomNumber}
+          style={styles.input}
+          disabled={submitting}
+        />
+
+        <TextInput 
+          mode="outlined"
+          label="Capacity *"
+          placeholder="e.g. 5" 
+          keyboardType="numeric" 
+          value={capacity}
+          onChangeText={setCapacity}
+          style={styles.input}
+          disabled={submitting}
+        />
+
+        <TextInput 
+          mode="outlined"
+          label="Room Type ID *"
+          placeholder="e.g. 1" 
+          keyboardType="numeric" 
+          value={roomTypeId}
+          onChangeText={setRoomTypeId}
+          style={styles.input}
+          disabled={submitting}
+        />
+
+        <View style={styles.buttonRow}>
+          <Button 
+            mode="outlined" 
+            style={styles.button}
+            onPress={() => navigation.goBack()}
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+
+          <Button 
+            mode="contained" 
+            style={styles.button}
+            onPress={handleSubmit}
+            loading={submitting}
+            disabled={submitting}
+          >
+           {submitting ? 'Saving...' : 'Save Room'}
+          </Button>
+        </View>
       </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  form: { padding: 20 },
-  input: { marginBottom: 15 },
-  button: { marginTop: 10 }
+  container: {
+    flex: 1,
+  },
+  form: {
+    padding: 20,
+  },
+  input: {
+    marginBottom: 15,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+    paddingBottom: 40,
+  },
+  button: {
+    flex: 0.48,
+    paddingVertical: 5,
+  },
 });
 
-export default AddRehabRoomScreen;
+export default AddRoomScreen;

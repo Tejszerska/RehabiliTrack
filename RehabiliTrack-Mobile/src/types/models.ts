@@ -172,9 +172,9 @@ export interface UpdateStayRequest extends CreateStayRequest {
 // APPOINTMENTS
 
 export enum AppointmentStatus {
-  Scheduled = 'Scheduled',
-  Completed = 'Completed',
-  Canceled = 'Canceled'
+  Scheduled = 0,
+  Completed = 1,
+  Canceled = 2
 }
 
 export interface AppointmentListItem {

@@ -42,7 +42,6 @@ import EditStayScreen from '../screens/Stays/EditStayScreen';
 import StayDetailsScreen from '../screens/Stays/StayDetailsScreen';
 
 // APPOINTMENTS
-import AppointmentsScreen from '../screens/Appointments/AppointmentsScreen';
 import AddAppointmentScreen from '../screens/Appointments/AddAppointmentScreen';
 import EditAppointmentScreen from '../screens/Appointments/EditAppointmentScreen';
 import AppointmentDetailsScreen from '../screens/Appointments/AppointmentDetailsScreen';
@@ -95,7 +94,6 @@ function RootNavigator(): React.JSX.Element {
         <Stack.Screen name="StayDetails" component={StayDetailsScreen} />
 
         {/*========== APPOINTMENTS ========== */}
-        <Stack.Screen name="Appointments" component={AppointmentsScreen} />
         <Stack.Screen name="AddAppointment" component={AddAppointmentScreen} />
         <Stack.Screen name="EditAppointment" component={EditAppointmentScreen} />
         <Stack.Screen name="AppointmentDetails" component={AppointmentDetailsScreen} />
