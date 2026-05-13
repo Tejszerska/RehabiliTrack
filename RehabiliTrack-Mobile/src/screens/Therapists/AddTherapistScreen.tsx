@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { TextInput, Button, useTheme} from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { TextInput, Button, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useTherapists } from '../../context/TherapistsContext';
-import { CreateTherapistRequest } from '../../types/models';
+import { CreateTherapistRequest, TherapistRole } from '../../types/models';
 import CustomHeader from '../../components/CustomHeader';
+import { PickerField } from '../../components/PickerField';
+import apiService from '../../api/apiService';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -17,49 +19,53 @@ const AddTherapistScreen = () => {
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [licenseNumber, setLicenseNumber] = useState(''); // Zmiana z pesel na licenseNumber
-  const [roleId, setRoleId] = useState(''); // Dodano roleId wpisywane ręcznie
+  const [licenseNumber, setLicenseNumber] = useState('');
+  
+  const [roleId, setRoleId] = useState<number | null>(null);
+  const [roles, setRoles] = useState<TherapistRole[]>([]);
+  
   const [phoneNumber, setPhoneNumber] = useState('');
   const [notes, setNotes] = useState('');
 
+  const [loadingRoles, setLoadingRoles] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const fetchedRoles = await apiService.getTherapistRoles();
+        setRoles(fetchedRoles);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        Alert.alert('Error', 'Failed to load therapist roles.');
+      } finally {
+        setLoadingRoles(false);
+      }
+    };
+    fetchRoles();
+  }, []);
 
   const handleSubmit = async () => {
     try {
-      // VALIDATION 
-      if (!firstName.trim()) {
-        Alert.alert('Error', 'First name is required');
+      // WALIDACJA
+      if (!firstName.trim() || !lastName.trim() || !licenseNumber.trim() || !roleId) {
+        Alert.alert('Validation Error', 'Fields marked with * are required.');
         return; 
       }
-      if (!lastName.trim()) {
-        Alert.alert('Error', 'Last name is required');
-        return;
-      }
-      if (!licenseNumber.trim()) {
-        Alert.alert('Error', 'License number (PWZ) is required');
-        return;
-      }
-      
-      const parsedRoleId = parseInt(roleId.trim(), 10);
-      if (!roleId.trim() || isNaN(parsedRoleId)) {
-        Alert.alert('Error', 'Valid Role ID is required');
-        return;
-      }
 
-      // SENDING TO API
       setSubmitting(true);
       const formData: CreateTherapistRequest = {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        licenseNumber: licenseNumber.trim(), // Używamy licenseNumber
-        therapistRoleId: parsedRoleId,       // Używamy zrzutowanego roleId
+        licenseNumber: licenseNumber.trim(),
+        therapistRoleId: roleId,
         phoneNumber: phoneNumber.trim() === '' ? undefined : phoneNumber.trim(),
         notes: notes.trim() === '' ? undefined : notes.trim(),
       };
       
       await createTherapist(formData);
 
-      // SUCCESS
       Alert.alert('Success', 'Therapist saved correctly', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]); 
@@ -72,11 +78,18 @@ const AddTherapistScreen = () => {
     }
   };
 
+  if (loadingRoles) {
+    return (
+      <View style={[styles.container, styles.centerBox, { backgroundColor: theme.colors.background }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} bounces={false}>
-      <CustomHeader title="New Therapist" />
+      <CustomHeader title="New Therapist" showBackButton={true} />
 
-      {/* form */}
       <View style={styles.form}>
         <TextInput 
           mode="outlined"
@@ -108,14 +121,15 @@ const AddTherapistScreen = () => {
           disabled={submitting}
         />
 
-        <TextInput 
-          mode="outlined"
-          label="Therapist Role ID *"
-          placeholder="e.g. 1" 
-          keyboardType="numeric" 
+        <PickerField
+          label="Therapist Role"
           value={roleId}
-          onChangeText={setRoleId}
-          style={styles.input}
+          items={roles}
+          getValue={x => x.id}
+          getLabel={x => x.name}
+          onChange={val => setRoleId(val as number | null)}
+          placeholder="Pick a role..."
+          required
           disabled={submitting}
         />
 
@@ -143,22 +157,11 @@ const AddTherapistScreen = () => {
         />
 
         <View style={styles.buttonRow}>
-          <Button 
-            mode="outlined" 
-            style={styles.button}
-            onPress={() => navigation.goBack()}
-            disabled={submitting}
-          >
+          <Button mode="outlined" style={styles.button} onPress={() => navigation.goBack()} disabled={submitting}>
             Cancel
           </Button>
 
-          <Button 
-            mode="contained" 
-            style={styles.button}
-            onPress={handleSubmit}
-            loading={submitting}
-            disabled={submitting}
-          >
+          <Button mode="contained" style={styles.button} onPress={handleSubmit} loading={submitting} disabled={submitting}>
            {submitting ? 'Saving...' : 'Save Therapist'}
           </Button>
         </View>
@@ -168,25 +171,12 @@ const AddTherapistScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  form: {
-    padding: 20,
-  },
-  input: {
-    marginBottom: 15,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-    paddingBottom: 40,
-  },
-  button: {
-    flex: 0.48,
-    paddingVertical: 5,
-  },
+  container: { flex: 1 },
+  centerBox: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  form: { padding: 20 },
+  input: { marginBottom: 15 },
+  buttonRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, paddingBottom: 40 },
+  button: { flex: 0.48, paddingVertical: 5 },
 });
 
 export default AddTherapistScreen;
