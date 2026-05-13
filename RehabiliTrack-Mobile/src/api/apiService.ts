@@ -10,7 +10,8 @@ import type {
   CreateAppointmentRequest, UpdateAppointmentRequest,
   AppointmentListItem,
   AppointmentDetails,
-  PatientListItem
+  PatientListItem,
+  StayDetails
 } from '../types/models';
 
 class ApiService {
@@ -252,8 +253,8 @@ class ApiService {
     return this.request<Stay[]>('/Stays');
   }
 
-  async getStay(id: number): Promise<Stay> {
-    return this.request<Stay>(`/Stays/${id}`);
+  async getStay(id: number): Promise<StayDetails> {
+    return this.request<StayDetails>(`/Stays/${id}`);
   }
 
   async createStay(data: CreateStayRequest): Promise<{ id: number }> {

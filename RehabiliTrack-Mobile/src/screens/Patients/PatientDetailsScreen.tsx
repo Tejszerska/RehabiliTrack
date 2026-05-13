@@ -21,6 +21,7 @@ const PatientDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
   useEffect(() => {
     const fetchPatientData = async () => {
       try {
+        setLoading(true); 
         const data = await apiService.getPatient(patientId);
         setPatient(data);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -32,7 +33,14 @@ const PatientDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     };
 
     fetchPatientData();
-  }, [patientId]);
+
+    // REFRESHING AFTER UDATE:
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchPatientData();
+    });    
+    return unsubscribe;
+
+  }, [patientId, navigation]);
 
   // Icons defined once improve performence 
   const renderPhoneIcon = useCallback((props: any) => <List.Icon {...props} icon="phone" />, []);

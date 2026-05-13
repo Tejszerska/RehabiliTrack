@@ -15,23 +15,39 @@ namespace RehabiliTrack_API.Features.Appointments.Queries.GetAllAppointments
 
         public async Task<List<AppointmentListItemDto>> Handle(GetAllAppointmentsQuery request, CancellationToken cancellationToken)
         {
+
             var appointments = await _context.Appointments
-                .Where(p => p.IsActive)
-                .OrderByDescending(p => p.UpdatedAt)
+                .Include(a => a.Patient)
+                .Include(a => a.Treatment)
+                .Include(a => a.Therapist)
+                .Include(a => a.Room)
                 .Select(a => new AppointmentListItemDto
                 {
                     Id = a.Id,
-                    PatientId = a.PatientId,
-                    PatientFullName = a.Patient!.FirstName + " " + a.Patient.LastName,
-                    TreatmentId = a.TreatmentId,
-                    TreatmentName = a.Treatment!.Name,
-                    TherapistId = a.TherapistId,
-                    TherapistFullName = a.Therapist!.FirstName + " " + a.Therapist.LastName,
-                    RoomId = a.RoomId,
-                    RoomName = a.Room!.Name,
                     StartDateTime = a.StartDateTime,
                     Status = a.Status.ToString(),
-                    Outpatient = a.StayParticipationId == null
+                    Outpatient = a.StayParticipationId == null,
+
+                    Patient = new PatientInfoDto
+                    {
+                        Id = a.Patient.Id,
+                        FullName = a.Patient.FirstName + " " + a.Patient.LastName
+                    },
+                    Treatment = new TreatmentInfoDto
+                    {
+                        Id = a.Treatment.Id,
+                        Name = a.Treatment.Name
+                    },
+                    Therapist = new TherapistInfoDto
+                    {
+                        Id = a.Therapist.Id,
+                        FullName = a.Therapist.FirstName + " " + a.Therapist.LastName
+                    },
+                    Room = new RoomInfoDto
+                    {
+                        Id = a.Room.Id,
+                        Name = a.Room.Name
+                    }
                 })
                 .ToListAsync(cancellationToken);
 

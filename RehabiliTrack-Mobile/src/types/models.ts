@@ -177,49 +177,77 @@ export enum AppointmentStatus {
   Canceled = 2
 }
 
+export interface AppointmentListPatient {
+  id: number;
+  fullName: string;
+}
+export interface AppointmentListTreatment {
+  id: number;
+  name: string;
+}
+export interface AppointmentListTherapist {
+id: number;
+fullName: string;
+}
+export interface AppointmentListRoom {
+  id: number;
+  name: string;
+  number: string;
+}
+
+
 export interface AppointmentListItem {
   id: number;
-  patientId: number;
-  patientFullName: string;
-  treatmentId: number;
-  treatmentName: string;
-  therapistId: number;
-  therapistFullName: string;
-  roomId: number;
-  roomName: string;
+  patient: AppointmentListPatient;
+  treatment: AppointmentListTreatment;
+  therapist: AppointmentListTherapist;
+  room: AppointmentListRoom;
   startDateTime: string;
   status: string;
   outpatient: boolean;
 }
 
+export interface AppointmentDetailsPatient {
+  id: number;
+  fullName: string;
+  phoneNumber?: string;
+  notes?: string;
+}
+export interface AppointmentDetailsTreatment {
+  id: number;
+  name: string;
+  durationMinutes: string;
+
+}
+export interface AppointmentDetailsTherapist {
+id: number;
+fullName: string;
+roleName: string;
+}
+export interface AppointmentDetailsStay {
+id: number;
+participationId: number;
+name: string;
+}
+
+export interface AppointmentDetailsRoom {
+  id: number;
+  name: string;
+  number: string;
+  typeName: string;
+}
+
 export interface AppointmentDetails {
   id: number;
-  patientId: number;
-  patientFullName: string;
-  patientNotes?: string;
-  patientPhoneNumber?: string;
-  
-  treatmentId: number;
-  treatmentName: string;
-  treatmentDurationMinutes: string;
-  
-  therapistId: number;
-  therapistFullName: string;
-  therapistRoleId: number;
-  therapistRoleName: string;
-  
-  roomId: number;
-  roomName: string;
-  roomNumber: string;
-  roomTypeId: number;
-  roomTypeName: string;
+ 
+  patient: AppointmentDetailsPatient;
+  treatment: AppointmentDetailsTreatment;
+  therapist: AppointmentDetailsTherapist;
+  room: AppointmentDetailsRoom;
+  stay?: AppointmentDetailsStay;
   
   startDateTime: string;
-  status: string;
-  
-  stayParticipationId?: number;
-  stayName: string;
-  stayId: number;
+  status: string;  
 }
 
 export interface CreateAppointmentRequest {

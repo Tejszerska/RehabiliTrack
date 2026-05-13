@@ -32,7 +32,14 @@ const AppointmentDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     };
 
     fetchAppointmentData();
-  }, [appointmentId]);
+
+    // REFRESHING AFTER UDATE:
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchAppointmentData();
+    });    
+    return unsubscribe;
+
+  }, [appointmentId, navigation]);
 
   // Icons defined once to improve performance 
   const renderPhoneIcon = useCallback((props: any) => <List.Icon {...props} icon="phone" />, []);
@@ -66,8 +73,12 @@ const AppointmentDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
   // time formatter
   const formatDateTime = (isoString: string) => {
-    const date = new Date(isoString);
-    return date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    try {
+      const date = new Date(isoString);
+      return date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+    } catch {
+      return '--';
+    }
   };
 
   if (loading) {
@@ -110,7 +121,7 @@ const AppointmentDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
 
           <View style={styles.headerTextInfo}>
             <Text variant="headlineSmall" style={styles.userName}>
-              {appointment.patientFullName}
+              {appointment.patient?.fullName || 'Unknown Patient'}
             </Text>
             <Text variant="bodyMedium" style={styles.userPesel}>
               {formatDateTime(appointment.startDateTime)} | {appointment.status}
@@ -126,14 +137,14 @@ const AppointmentDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
           Treatment & Location
         </Text>
         <List.Item
-          title={appointment.treatmentName}
-          description={`Duration: ${appointment.treatmentDurationMinutes} min`}
+          title={appointment.treatment?.name || 'Unknown Treatment'}
+          description={`Duration: ${appointment.treatment?.durationMinutes || '--'} min`}
           left={renderTreatmentIcon}
         />
         <Divider />
         <List.Item
-          title={`${appointment.roomName} (Room ${appointment.roomNumber})`}
-          description={`Type: ${appointment.roomTypeName}`}
+          title={`${appointment.room?.name || 'Unknown'} (Room ${appointment.room?.number || '-'})`}
+          description={`Type: ${appointment.room?.typeName || 'Unknown'}`}
           left={renderRoomIcon}
         />
       </View>
@@ -144,8 +155,8 @@ const AppointmentDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
           Therapist
         </Text>
         <List.Item
-          title={appointment.therapistFullName}
-          description={`Role: ${appointment.therapistRoleName}`}
+          title={appointment.therapist?.fullName || 'Unknown'}
+          description={`Role: ${appointment.therapist?.roleName || 'Unknown'}`}
           left={renderTherapistIcon}
         />
       </View>
@@ -156,21 +167,22 @@ const AppointmentDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
           Patient Info
         </Text>
         <List.Item
-          title={appointment.patientPhoneNumber || 'No phone provided'}
+          title={appointment.patient?.phoneNumber || 'No phone provided'}
           left={renderPhoneIcon}
         />
         <Divider />
         <List.Item
-          title={appointment.patientNotes || 'No medical notes available.'}
+          title={appointment.patient?.notes || 'No medical notes available.'}
           left={renderNotesIcon}
           descriptionNumberOfLines={5}
         />
-        {appointment.stayName && (
+        
+        {/* STAY */}
+        {appointment.stay?.name && (
           <>
             <Divider />
             <List.Item
-              title={`Enrolled in: ${appointment.stayName}`}
-              description={`Stay ID: ${appointment.stayId}`}
+              title={`Enrolled in: ${appointment.stay.name}`}
               left={renderStayIcon}
             />
           </>

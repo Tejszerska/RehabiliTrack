@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Card, Avatar, Text, Chip, useTheme } from 'react-native-paper';
 import { AppointmentListItem } from '../types/models';
 
@@ -20,13 +20,22 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onPress 
     }
   };
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const formatDateTime = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString('pl-PL', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    } catch {
+      return '--.--, --:--';
+    }
   };
 
   const statusInfo = getStatusProps(appointment.status);
-  const timeString = formatTime(appointment.startDateTime);
+  const timeString = formatDateTime(appointment.startDateTime);
 
   const renderLeftIcon = useCallback(
     (props: any) => (
@@ -56,21 +65,32 @@ const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onPress 
       onPress={() => onPress(appointment.id)}
     >
       <Card.Title
-        title={appointment.patientFullName}
-        subtitle={`${appointment.treatmentName}`}
+        title={appointment.patient.fullName}
+        subtitle={`${appointment.treatment.name}`}
         left={renderLeftIcon}
         right={renderRightContent}
         rightStyle={{ marginRight: 16 }}
       />
-      <Card.Content style={styles.cardContent}>
-        <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
-          Therapist: {appointment.therapistFullName}
-        </Text>
+      <Card.Content style={[styles.cardContent, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+        
+        {/* Left column : therapist over room*/}
+        <View style={{ flex: 1, paddingRight: 10 }}>
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant, marginBottom: 4 }}>
+            Therapist: {appointment.therapist?.fullName || '-'}
+          </Text>
+          
+          <Text variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
+            Room: {`${appointment.room?.name || 'Unknown'}`}
+          </Text>
+        </View>
+
+        {/* right column : outpatient chiip */}
         {appointment.outpatient && (
           <Chip compact mode="outlined" style={styles.outpatientChip} textStyle={styles.outpatientChipText}>
             Outpatient
           </Chip>
         )}
+        
       </Card.Content>
     </Card>
   );

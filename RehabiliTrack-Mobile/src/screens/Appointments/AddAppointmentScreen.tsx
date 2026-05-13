@@ -1,56 +1,96 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { TextInput, Button, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useAppointments } from '../../context/AppointmentsContext';
-import { CreateAppointmentRequest, AppointmentStatus } from '../../types/models';
+import { CreateAppointmentRequest, AppointmentStatus, PatientListItem, Treatment, RehabRoom, Stay, Therapist } from '../../types/models';
 import CustomHeader from '../../components/CustomHeader';
+import { PickerField } from '../../components/PickerField'; 
+import apiService from '../../api/apiService';
+import DatePicker from 'react-native-date-picker';
+import { TouchableWithoutFeedback } from 'react-native';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const AddAppointmentScreen = () => {
   const theme = useTheme();
   const navigation = useNavigation<NavigationProp>();
+  
+  const [patientId, setPatientId] = useState<number | null>(null);
+  const [treatmentId, setTreatmentId] = useState<number | null>(null);
+  const [therapistId, setTherapistId] = useState<number | null>(null);
+  const [roomId, setRoomId] = useState<number | null>(null);
+  const [startDateTime, setStartDateTime] = useState(''); // np. 2026-05-08T10:00:00
+  const [stayParticipationId, setStayParticipationId] = useState<number | null>(null);
+
+  const [patients, setPatients] = useState<PatientListItem[]>([]);
+  const [treatments, setTreatments] = useState<Treatment[]>([]);
+  const [therapists, setTherapists] = useState<Therapist[]>([]);
+  const [rehabRooms, setRehabRooms] = useState<RehabRoom[]>([]);
+  const [stays, setStays] = useState<Stay[]>([]);
+
+  const [date, setDate] = useState(new Date());
+  const [openDatePicker, setOpenDatePicker] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const { createAppointment } = useAppointments();
 
-  const [patientId, setPatientId] = useState('');
-  const [treatmentId, setTreatmentId] = useState('');
-  const [therapistId, setTherapistId] = useState('');
-  const [roomId, setRoomId] = useState('');
-  const [startDateTime, setStartDateTime] = useState(''); //2026-05-08T10:00:00
-  const [stayParticipationId, setStayParticipationId] = useState('');
-
-  const [submitting, setSubmitting] = useState(false);
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [pats, thers, treas, rehrs, sts] = await Promise.all([
+          apiService.getPatients(),
+          apiService.getTherapists(),
+          apiService.getTreatments(),
+          apiService.getRehabRooms(),
+          apiService.getStays(),
+        ]);
+        setPatients(pats);
+        setTherapists(thers);
+        setTreatments(treas);
+        setRehabRooms(rehrs);
+        setStays(sts);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        Alert.alert('Error', 'Failed to load dictionary data. Check your connection.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
 
   const handleSubmit = async () => {
+    if (!patientId) {
+      return Alert.alert('Validation Error', 'Picking a Patient is required.');
+    }
+    if (!treatmentId) {
+      return Alert.alert('Validation Error', 'Picking a Treatment is required.');
+    }
+    if (!therapistId) {
+      return Alert.alert('Validation Error', 'Picking a Therapist is required.');
+    }
+    if (!roomId) {
+      return Alert.alert('Validation Error', 'Picking a Rehab Room is required.');
+    }
+    if (!startDateTime.trim()) {
+      return Alert.alert('Validation Error', 'Start Date & Time is required.');
+    }
+
     try {
-      if (!patientId || !treatmentId || !therapistId || !roomId || !startDateTime) {
-        Alert.alert('Error', 'Fields marked with * are mandatory.');
-        return;
-      }
-
-      const pId = parseInt(patientId, 10);
-      const trId = parseInt(treatmentId, 10);
-      const thId = parseInt(therapistId, 10);
-      const rId = parseInt(roomId, 10);
-      const sId = stayParticipationId.trim() ? parseInt(stayParticipationId, 10) : undefined;
-
-      if (isNaN(pId) || isNaN(trId) || isNaN(thId) || isNaN(rId)) {
-        Alert.alert('Error', 'ID must be a number');
-        return;
-      }
-
       setSubmitting(true);
+      
       const formData: CreateAppointmentRequest = {
-        patientId: pId,
-        treatmentId: trId,
-        therapistId: thId,
-        roomId: rId,
+        patientId: patientId,
+        treatmentId: treatmentId,
+        therapistId: therapistId,
+        roomId: roomId,
         startDateTime: startDateTime.trim(),
         status: AppointmentStatus.Scheduled,
-        stayParticipationId: sId
+        stayParticipationId: stayParticipationId || undefined 
       };
       
       await createAppointment(formData);
@@ -61,79 +101,125 @@ const AddAppointmentScreen = () => {
       
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      Alert.alert('Error', 'The appointment could not be saved.');
+      Alert.alert('Error', 'The appointment could not be saved. Check server logs.');
     } finally {
       setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContainer, { backgroundColor: theme.colors.background }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} bounces={false}>
       <CustomHeader title="New Appointment" showBackButton={true} />
 
       <View style={styles.form}>
-        <TextInput 
-          mode="outlined"
-          label="Patient ID *"
-          placeholder="np. 5"
-          keyboardType="numeric"
+        
+        <PickerField
+          label="Patient"
           value={patientId}
-          onChangeText={setPatientId}
-          style={styles.input}
+          items={patients}
+          getValue={x => x.id}
+          getLabel={x => `${(x as any).firstName || ''} ${(x as any).lastName || ''}`.trim()}
+          onChange={val => setPatientId(val as number | null)}
+          placeholder="Pick a Patient..."
+          required
           disabled={submitting}
         />
 
-        <TextInput 
-          mode="outlined"
-          label="Treatment ID *"
-          placeholder="np. 2"
-          keyboardType="numeric"
+        <PickerField
+          label="Treatment"
           value={treatmentId}
-          onChangeText={setTreatmentId}
-          style={styles.input}
+          items={treatments}
+          getValue={x => x.id}
+          getLabel={x => x.name || `ID: ${x.id}`}
+          onChange={val => setTreatmentId(val as number | null)}
+          placeholder="Pick a Treatment..."
+          required
           disabled={submitting}
         />
 
-        <TextInput 
-          mode="outlined"
-          label="Therapist ID *"
-          placeholder="np. 1"
-          keyboardType="numeric"
+        <PickerField
+          label="Therapist"
           value={therapistId}
-          onChangeText={setTherapistId}
-          style={styles.input}
+          items={therapists}
+          getValue={x => x.id}
+          getLabel={x => (x as any).fullName || `${(x as any).firstName || ''} ${(x as any).lastName || ''}`.trim()}
+          onChange={val => setTherapistId(val as number | null)}
+          placeholder="Pick a Therapist..."
+          required
           disabled={submitting}
         />
 
-        <TextInput 
-          mode="outlined"
-          label="Room ID *"
-          placeholder="np. 10"
-          keyboardType="numeric"
+        <PickerField
+          label="Rehab Room"
           value={roomId}
-          onChangeText={setRoomId}
-          style={styles.input}
+          items={rehabRooms}
+          getValue={x => x.id}
+          getLabel={x => `${x.name} (${x.roomNumber})`}
+          onChange={val => setRoomId(val as number | null)}
+          placeholder="Pick a Room..."
+          required
           disabled={submitting}
         />
 
-        <TextInput 
-          mode="outlined"
-          label="Date & Time (ISO) *"
-          placeholder="YYYY-MM-DDTHH:mm:ss" 
-          value={startDateTime}
-          onChangeText={setStartDateTime}
-          style={styles.input}
-          disabled={submitting}
+        {/* Looks like TextInput*/}
+        <TouchableWithoutFeedback 
+        onPress={() => setOpenDatePicker(true)} 
+        disabled={submitting}>
+          <View>
+            <TextInput 
+              mode="outlined"
+              label="Date & Time *"
+              // show formatted value or " " when empty
+              value={startDateTime ? date.toLocaleString('pl-PL', { 
+                day: '2-digit', month: '2-digit', year: 'numeric', 
+                hour: '2-digit', minute: '2-digit' 
+              }) : ''}
+              placeholder="Pick date and time"
+              editable={false}
+              right={<TextInput.Icon icon="calendar-clock" />} 
+              style={styles.input}
+              disabled={submitting}
+              error={!startDateTime}
+            />
+          </View>
+        </TouchableWithoutFeedback>
+
+        {/* Appears after pressing on above*/}
+        <DatePicker
+          modal
+          locale="en-GB"
+          open={openDatePicker}
+          date={date}
+          mode="datetime" // Pokazuje od razu wybór daty i godziny!
+          confirmText="Confirm"
+          cancelText="Cancel"
+          title="Pick appointment's date"
+          onConfirm={(selectedDate) => {
+            setOpenDatePicker(false);
+            setDate(selectedDate); 
+            setStartDateTime(selectedDate.toISOString()); // for backend
+          }}
+          onCancel={() => {
+            setOpenDatePicker(false);
+          }}
         />
 
-        <TextInput 
-          mode="outlined"
-          label="Stay Participation ID (Opcjonalnie)"
-          placeholder="np. 1"
-          keyboardType="numeric"
+        <PickerField
+          label="Stay (Optional)"
           value={stayParticipationId}
-          onChangeText={setStayParticipationId}
-          style={styles.input}
+          items={stays}
+          getValue={x => (x as any).participationId || x.id} 
+          getLabel={x => x.name || `Stay #${x.id}`}
+          onChange={val => setStayParticipationId(val as number | null)}
+          placeholder="Outpatient (None)" 
           disabled={submitting}
         />
 
@@ -164,6 +250,7 @@ const AddAppointmentScreen = () => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  centerContainer: { justifyContent: 'center', alignItems: 'center' },
   form: { padding: 20 },
   input: { marginBottom: 15 },
   buttonRow: {

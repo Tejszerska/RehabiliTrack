@@ -32,7 +32,14 @@ const StayDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     };
 
     fetchStayData();
-  }, [stayId]);
+
+    // REFRESHING AFTER UDATE:
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchStayData();
+    });    
+    return unsubscribe;
+    
+  }, [stayId, navigation]);
 
   // Icons defined once to improve performance 
   const renderCapacityIcon = useCallback((props: any) => <List.Icon {...props} icon="account-group" />, []);

@@ -1,40 +1,54 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { TextInput, Button, useTheme, Text} from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { TextInput, Button, useTheme} from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { usePatients } from '../../context/PatientsContext';
 import { UpdatePatientRequest } from '../../types/models';
 import CustomHeader from '../../components/CustomHeader';
+import apiService from '../../api/apiService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EditPatient'>;
-
 
 const EditPatientScreen: React.FC<Props> = ({ route, navigation }) => {
   const { patientId } = route.params;
 
   const theme = useTheme();
-  const { patients, updatePatient } = usePatients();  
-  const patient = patients.find(p => p.id === patientId);
+  const { updatePatient } = usePatients();  
 
-  const [firstName, setFirstName] = useState(patient?.firstName || '');
-  const [lastName, setLastName] = useState(patient?.lastName || '');
-  const [pesel, setPesel] = useState(patient?.pesel || '');
-  const [phoneNumber, setPhoneNumber] = useState(patient?.phoneNumber || '');
-  const [notes, setNotes] = useState(patient?.notes || '');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [pesel, setPesel] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [notes, setNotes] = useState('');
 
   const [submitting, setSubmitting] = useState(false);
+  const [loadingData, setLoadingData] = useState(true); 
+  // get full data 
+  useEffect(() => {
+    const fetchFullPatientData = async () => {
+      try {
+        const fullPatient = await apiService.getPatient(patientId);
+        if (fullPatient) {
+          setFirstName(fullPatient.firstName || '');
+          setLastName(fullPatient.lastName || '');
+          setPesel(fullPatient.pesel || '');
+          setPhoneNumber(fullPatient.phoneNumber || '');
+          setNotes(fullPatient.notes || '');
+        }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (error) {
+        Alert.alert('Error', 'Could not fetch patient details for editing.');
+        navigation.goBack();
+      } finally {
+        setLoadingData(false);
+      }
+    };
 
-  if (!patient) {
-    return (
-      <View style={styles.centerContainer}>
-        <Text>Patient not found</Text>
-      </View>
-    );
-  }
+    fetchFullPatientData();
+  }, [patientId, navigation]);
 
   const handleSubmit = async () => {
-
     try {
         // VALIDATION 
       if (!firstName.trim()) {
@@ -42,7 +56,7 @@ const EditPatientScreen: React.FC<Props> = ({ route, navigation }) => {
           return; 
         }
       if (!lastName.trim()) {
-          Alert.alert('Error', 'Last name i srequired');
+          Alert.alert('Error', 'Last name is required');
           return;
         }
         if (!pesel.trim() || pesel.trim().length !== 11) {
@@ -51,40 +65,48 @@ const EditPatientScreen: React.FC<Props> = ({ route, navigation }) => {
         }
 
         // SENDING TO API
-        setSubmitting(true); // block repeated submitting
+        setSubmitting(true);
         
+        const safePhone = phoneNumber ? phoneNumber.trim() : '';
+        const safeNotes = notes ? notes.trim() : '';
+
         const formData: UpdatePatientRequest = {
           id: patientId,
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           pesel: pesel.trim(),
-          phoneNumber: phoneNumber.trim() === '' ? undefined : phoneNumber.trim(),
-          notes: notes.trim() === '' ? undefined : notes.trim()
+          phoneNumber: safePhone === '' ? undefined : safePhone,
+          notes: safeNotes === '' ? undefined : safeNotes
          };
 
         await updatePatient(patientId, formData);
 
-          // SUCCESS
-            Alert.alert('Success', 'Patient updated correctly', [
-            { text: 'OK', onPress: () => navigation.goBack() }
-          ]); 
+        // SUCCESS
+        Alert.alert('Success', 'Patient updated correctly', [
+          { text: 'OK', onPress: () => navigation.goBack() }
+        ]); 
           
-          //ERRORS (server)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       Alert.alert('Error', 'There was a problem. Patient was not updated.');
     } finally {
       setSubmitting(false);
     }
-
   };
+
+  // lloadig
+  if (loadingData) {
+    return (
+      <View style={[styles.container, styles.centerContainer, { backgroundColor: theme.colors.background }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} bounces={false}>
       
-      {/* back arrow instead of default header */}
       <CustomHeader title="Edit Patient" />
-
 
       {/* form */}
       <View style={styles.form}>
@@ -95,7 +117,7 @@ const EditPatientScreen: React.FC<Props> = ({ route, navigation }) => {
           value={firstName}
           onChangeText={setFirstName}
           style={styles.input}
-          disabled={submitting} // blocks edit when submiting
+          disabled={submitting}
         />
 
         <TextInput 
@@ -157,7 +179,7 @@ const EditPatientScreen: React.FC<Props> = ({ route, navigation }) => {
             mode="contained" 
             style={styles.button}
             onPress={handleSubmit}
-            loading={submitting} // React Native Paper -> loading icon
+            loading={submitting}
             disabled={submitting}
           >
            {submitting ? 'Saving...' : 'Update'}
@@ -173,7 +195,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   centerContainer: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
 import { TextInput, Button, useTheme } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useAppointments } from '../../context/AppointmentsContext';
-import { UpdateAppointmentRequest } from '../../types/models';
+import { UpdateAppointmentRequest, PatientListItem, Treatment, RehabRoom, Stay, Therapist } from '../../types/models';
 import CustomHeader from '../../components/CustomHeader';
+import { PickerField } from '../../components/PickerField'; 
 import apiService from '../../api/apiService';
+import DatePicker from 'react-native-date-picker';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EditAppointment'>;
 
@@ -15,28 +17,65 @@ const EditAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
   const theme = useTheme();
   const { updateAppointment } = useAppointments();
 
-  const [patientId, setPatientId] = useState('');
-  const [treatmentId, setTreatmentId] = useState('');
-  const [therapistId, setTherapistId] = useState('');
-  const [roomId, setRoomId] = useState('');
+  // STANY DANYCH FORMULARZA (zmienione z tekstów na liczby)
+  const [patientId, setPatientId] = useState<number | null>(null);
+  const [treatmentId, setTreatmentId] = useState<number | null>(null);
+  const [therapistId, setTherapistId] = useState<number | null>(null);
+  const [roomId, setRoomId] = useState<number | null>(null);
   const [startDateTime, setStartDateTime] = useState(''); 
-  const [stayParticipationId, setStayParticipationId] = useState('');
+  const [stayParticipationId, setStayParticipationId] = useState<number | null>(null);
+
+  // STANY DLA DATE PICKERA
+  const [date, setDate] = useState(new Date());
+  const [openDatePicker, setOpenDatePicker] = useState(false);
+
+  // STANY SŁOWNIKÓW
+  const [patients, setPatients] = useState<PatientListItem[]>([]);
+  const [treatments, setTreatments] = useState<Treatment[]>([]);
+  const [therapists, setTherapists] = useState<Therapist[]>([]);
+  const [rehabRooms, setRehabRooms] = useState<RehabRoom[]>([]);
+  const [stays, setStays] = useState<Stay[]>([]);
 
   const [submitting, setSubmitting] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
-    const fetchAppointmentDetails = async () => {
+    const fetchAllData = async () => {
       try {
-        const data = await apiService.getAppointment(appointmentId);
-        setPatientId(data.patientId.toString());
-        setTreatmentId(data.treatmentId.toString());
-        setTherapistId(data.therapistId.toString());
-        setRoomId(data.roomId.toString());
-        setStartDateTime(data.startDateTime);
-        if (data.stayParticipationId) {
-          setStayParticipationId(data.stayParticipationId.toString());
+        // POBIERAMY WSZYSTKO NARAZ! 5 słowników + 1 detal wizyty
+        const [pats, thers, treas, rehrs, sts, appointmentData] = await Promise.all([
+          apiService.getPatients(),
+          apiService.getTherapists(),
+          apiService.getTreatments(),
+          apiService.getRehabRooms(),
+          apiService.getStays(),
+          apiService.getAppointment(appointmentId) // Pobieramy detale
+        ]);
+
+        // 1. Zapisujemy słowniki
+        setPatients(pats);
+        setTherapists(thers);
+        setTreatments(treas);
+        setRehabRooms(rehrs);
+        setStays(sts);
+
+        // 2. Wypełniamy formularz danymi z backendu
+        // UWAGA: Używamy zagnieżdżonych ścieżek!
+        setPatientId(appointmentData.patient.id);
+        setTreatmentId(appointmentData.treatment.id);
+        setTherapistId(appointmentData.therapist.id);
+        setRoomId(appointmentData.room.id);
+        
+        // Data dla backendu i dla obiektu Date kalendarza
+        setStartDateTime(appointmentData.startDateTime);
+        setDate(new Date(appointmentData.startDateTime));
+        
+        // Jeśli obiekt stay istnieje, ustawiamy jego ID
+        if (appointmentData.stay) {
+          // Upewnij się, czy to id, czy participationId wg Twojego modelu
+          setStayParticipationId((appointmentData.stay as any).participationId || appointmentData.stay.id);
         }
+
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         Alert.alert('Error', 'Could not fetch appointment data for editing.');
@@ -46,36 +85,27 @@ const EditAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
       }
     };
 
-    fetchAppointmentDetails();
+    fetchAllData();
   }, [appointmentId, navigation]);
 
   const handleSubmit = async () => {
+    if (!patientId || !treatmentId || !therapistId || !roomId || !startDateTime) {
+      Alert.alert('Error', 'Fields marked with * are mandatory.');
+      return;
+    }
+
     try {
-      if (!patientId || !treatmentId || !therapistId || !roomId || !startDateTime) {
-        Alert.alert('Error', 'Fields marked with * are mandatory.');
-        return;
-      }
-
-      const pId = parseInt(patientId, 10);
-      const trId = parseInt(treatmentId, 10);
-      const thId = parseInt(therapistId, 10);
-      const rId = parseInt(roomId, 10);
-      const sId = stayParticipationId.trim() ? parseInt(stayParticipationId, 10) : undefined;
-
-      if (isNaN(pId) || isNaN(trId) || isNaN(thId) || isNaN(rId)) {
-        Alert.alert('Error', 'ID must be a number');
-        return;
-      }
-
       setSubmitting(true);
+      
+      // Budujemy PŁASKI obiekt do wysyłki (PUT)
       const formData: UpdateAppointmentRequest = {
         id: appointmentId,
-        patientId: pId,
-        treatmentId: trId,
-        therapistId: thId,
-        roomId: rId,
+        patientId: patientId,
+        treatmentId: treatmentId,
+        therapistId: therapistId,
+        roomId: roomId,
         startDateTime: startDateTime.trim(),
-        stayParticipationId: sId
+        stayParticipationId: stayParticipationId || undefined
       };
       
       await updateAppointment(appointmentId, formData);
@@ -105,68 +135,102 @@ const EditAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
       <CustomHeader title="Edit Appointment" showBackButton={true} />
 
       <View style={styles.form}>
-        <TextInput 
-          mode="outlined"
-          label="Patient ID *"
-          placeholder="np. 5"
-          keyboardType="numeric"
+        <PickerField
+          label="Patient *"
           value={patientId}
-          onChangeText={setPatientId}
-          style={styles.input}
+          items={patients}
+          getValue={x => x.id}
+          getLabel={x => `${(x as any).firstName || ''} ${(x as any).lastName || ''}`.trim()}
+          onChange={val => setPatientId(val as number | null)}
+          placeholder="Pick a Patient..."
+          required
           disabled={submitting}
         />
 
-        <TextInput 
-          mode="outlined"
-          label="Treatment ID *"
-          placeholder="np. 2"
-          keyboardType="numeric"
+        <PickerField
+          label="Treatment *"
           value={treatmentId}
-          onChangeText={setTreatmentId}
-          style={styles.input}
+          items={treatments}
+          getValue={x => x.id}
+          getLabel={x => x.name || `ID: ${x.id}`}
+          onChange={val => setTreatmentId(val as number | null)}
+          placeholder="Pick a Treatment..."
+          required
           disabled={submitting}
         />
 
-        <TextInput 
-          mode="outlined"
-          label="Therapist ID *"
-          placeholder="np. 1"
-          keyboardType="numeric"
+        <PickerField
+          label="Therapist *"
           value={therapistId}
-          onChangeText={setTherapistId}
-          style={styles.input}
+          items={therapists}
+          getValue={x => x.id}
+          getLabel={x => (x as any).fullName || `${(x as any).firstName || ''} ${(x as any).lastName || ''}`.trim()}
+          onChange={val => setTherapistId(val as number | null)}
+          placeholder="Pick a Therapist..."
+          required
           disabled={submitting}
         />
 
-        <TextInput 
-          mode="outlined"
-          label="Room ID *"
-          placeholder="np. 10"
-          keyboardType="numeric"
+        <PickerField
+          label="Rehab Room *"
           value={roomId}
-          onChangeText={setRoomId}
-          style={styles.input}
+          items={rehabRooms}
+          getValue={x => x.id}
+          getLabel={x => `${x.name} (${x.roomNumber})`}
+          onChange={val => setRoomId(val as number | null)}
+          placeholder="Pick a Room..."
+          required
           disabled={submitting}
         />
 
-        <TextInput 
-          mode="outlined"
-          label="Date & Time (ISO) *"
-          placeholder="YYYY-MM-DDTHH:mm:ss" 
-          value={startDateTime}
-          onChangeText={setStartDateTime}
-          style={styles.input}
-          disabled={submitting}
+        <TouchableWithoutFeedback 
+          onPress={() => setOpenDatePicker(true)} 
+          disabled={submitting}>
+          <View>
+            <TextInput 
+              mode="outlined"
+              label="Date & Time *"
+              value={startDateTime ? date.toLocaleString('pl-PL', { 
+                day: '2-digit', month: '2-digit', year: 'numeric', 
+                hour: '2-digit', minute: '2-digit' 
+              }) : ''}
+              placeholder="Pick date and time"
+              editable={false}
+              right={<TextInput.Icon icon="calendar-clock" />} 
+              style={styles.input}
+              disabled={submitting}
+              error={!startDateTime}
+            />
+          </View>
+        </TouchableWithoutFeedback>
+
+        <DatePicker
+          modal
+          open={openDatePicker}
+          date={date}
+          mode="datetime"
+          locale="en-GB" // Wymusza zegar 24h!
+          confirmText="Confirm"
+          cancelText="Cancel"
+          title="Pick appointment's date"
+          onConfirm={(selectedDate) => {
+            setOpenDatePicker(false);
+            setDate(selectedDate); 
+            setStartDateTime(selectedDate.toISOString()); 
+          }}
+          onCancel={() => {
+            setOpenDatePicker(false);
+          }}
         />
 
-        <TextInput 
-          mode="outlined"
-          label="Stay Participation ID (Opcjonalnie)"
-          placeholder="np. 1"
-          keyboardType="numeric"
+        <PickerField
+          label="Stay (Optional)"
           value={stayParticipationId}
-          onChangeText={setStayParticipationId}
-          style={styles.input}
+          items={stays}
+          getValue={x => (x as any).participationId || x.id} 
+          getLabel={x => x.name || `Stay #${x.id}`}
+          onChange={val => setStayParticipationId(val as number | null)}
+          placeholder="Outpatient (None)" 
           disabled={submitting}
         />
 
@@ -187,7 +251,7 @@ const EditAppointmentScreen: React.FC<Props> = ({ route, navigation }) => {
             loading={submitting}
             disabled={submitting}
           >
-           {submitting ? 'Updating...' : 'Update Appointment'}
+           {submitting ? 'Updating...' : 'Update'}
           </Button>
         </View>
       </View>
