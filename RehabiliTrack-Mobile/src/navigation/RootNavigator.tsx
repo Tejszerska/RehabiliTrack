@@ -45,6 +45,7 @@ import StayDetailsScreen from '../screens/Stays/StayDetailsScreen';
 import AddAppointmentScreen from '../screens/Appointments/AddAppointmentScreen';
 import EditAppointmentScreen from '../screens/Appointments/EditAppointmentScreen';
 import AppointmentDetailsScreen from '../screens/Appointments/AppointmentDetailsScreen';
+import AddPatientToStayScreen from '../screens/Stays/AddPatientToStayScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -92,6 +93,8 @@ function RootNavigator(): React.JSX.Element {
         <Stack.Screen name="AddStay" component={AddStayScreen} />
         <Stack.Screen name="EditStay" component={EditStayScreen} />
         <Stack.Screen name="StayDetails" component={StayDetailsScreen} />
+        <Stack.Screen name="AddPatientToStay" component={AddPatientToStayScreen} />
+
 
         {/*========== APPOINTMENTS ========== */}
         <Stack.Screen name="AddAppointment" component={AddAppointmentScreen} />

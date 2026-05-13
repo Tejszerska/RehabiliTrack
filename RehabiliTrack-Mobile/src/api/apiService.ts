@@ -305,6 +305,24 @@ class ApiService {
       method: 'DELETE',
     });
   }
+
+// StayParticipation (tabela łącząca relacji M:M PAtients - Stays)
+  
+  // assign Patient To Stay
+async addPatientToStay(stayId: number, patientId: number): Promise<{ id: number }> {
+    return this.request<{ id: number }>('/StayParticipations', {
+      method: 'POST',
+      body: JSON.stringify({ patientId, stayId }),
+    });
+  }
+
+  // remove patient from stay
+  async removePatientFromStay(stayParticipationId: number): Promise<void> {
+    return this.request<void>(`/StayParticipations/${stayParticipationId}`, {
+      method: 'DELETE',
+    });
+  }
+
 }
 
 // Singleton

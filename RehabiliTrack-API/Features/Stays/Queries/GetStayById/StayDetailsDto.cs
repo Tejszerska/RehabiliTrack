@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
 namespace RehabiliTrack_API.Features.Stays.Queries.GetStayById
 {
@@ -10,13 +11,19 @@ namespace RehabiliTrack_API.Features.Stays.Queries.GetStayById
         public DateTime EndDate { get; set; }
         public int Occupancy { get; set; }
         public int MaxCapacity { get; set; }
-        public List<StayPatientDto> Patients { get; set; } = new List<StayPatientDto>();
+
+        public List<StayParticipationInfoDto> Participations { get; set; } = new();
     }
 
-    public class StayPatientDto
+    public class StayParticipationInfoDto
     {
-        public int StayParticipationId { get; set; } // for button remove from stay
-        public int PatientId { get; set; } // for navigating to patient details
-        public string PatientFullName { get; set; } = string.Empty;
+        public int Id { get; set; }
+        public StayPatientInfoDto Patient { get; set; } = null!;
+    }
+
+    public class StayPatientInfoDto
+    {
+        public int Id { get; set; } 
+        public string FullName { get; set; } = string.Empty;
     }
 }

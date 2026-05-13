@@ -137,9 +137,10 @@ export interface UpdateTreatmentRequest extends CreateTreatmentRequest {
   id: number;
 }
 
+
 // STAYS
 
-export interface Stay {
+export interface StayListItem {
   id: number;
   name: string;
   startDate: string;
@@ -148,14 +149,24 @@ export interface Stay {
   maxCapacity: number;
 }
 
-export interface StayPatient {
-  stayParticipationId: number;
-  patientId: number;
-  patientFullName: string;
+export interface StayDetailsPatient {
+  id: number;
+  fullName: string;
 }
 
-export interface StayDetails extends Stay {
-  patients: StayPatient[];
+export interface StayDetailsParticipation {
+  id: number; // participationId
+  patient: StayDetailsPatient;
+}
+
+export interface StayDetails {
+  id: number;
+  name: string;
+  startDate: string;
+  endDate: string;
+  occupancy: number;
+  maxCapacity: number;
+  participations: StayDetailsParticipation[];
 }
 
 export interface CreateStayRequest {

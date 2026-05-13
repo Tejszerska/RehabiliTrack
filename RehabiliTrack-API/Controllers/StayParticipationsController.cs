@@ -27,7 +27,7 @@ namespace RehabiliTrack_API.Controllers
         {
             var stayParticipationId = await _mediator.Send(command);
 
-            // Brak endpointu GetById dla przypisań, więc zwracamy po prostu 200 OK z nowym ID
+            // 200 OK with new ID
             return Ok(new { id = stayParticipationId, message = "Patient assigned to stay successfully" });
         }
 

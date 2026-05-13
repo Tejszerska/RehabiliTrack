@@ -4,7 +4,7 @@ import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-naviga
 import { RootStackParamList } from '../../navigation/types';
 import { useTheme, Text } from 'react-native-paper';
 import { useStays } from '../../context/StaysContext';
-import { Stay } from '../../types/models';
+import { StayListItem } from '../../types/models';
 import AddFAB from '../../components/AddFAB';
 import StayCard from '../../components/StayCard';
 import { useNavigation } from '@react-navigation/native';
@@ -14,14 +14,13 @@ type Props = NativeStackScreenProps<RootStackParamList, 'StayList'>;
 const StayListScreen: React.FC<Props> = () => {
   const theme = useTheme();
   const { stays, loading, refreshStays } = useStays();
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(); 
-  
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(); 
 
   const handlePress = useCallback((id: number) => {
     navigation.navigate('StayDetails', { stayId: id });
   }, [navigation]);
 
-  const renderStayItem = useCallback(({ item }: { item: Stay }) => (
+  const renderStayItem = useCallback(({ item }: { item: StayListItem }) => (
     <StayCard stay={item} onPress={handlePress} />
   ), [handlePress]);
 

@@ -6,13 +6,13 @@ import { Avatar, Button, Divider, List, Surface, Text, useTheme, IconButton } fr
 import { useStays } from "../../context/StaysContext";
 import apiService from '../../api/apiService';
 import { StayDetails } from "../../types/models";
+import AddFAB from '../../components/AddFAB';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'StayDetails'>;
 
 const StayDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
   const { stayId } = route.params;
   const theme = useTheme();
-
   const { deleteStay } = useStays(); 
   
   const [stay, setStay] = useState<StayDetails | null>(null);
@@ -21,7 +21,7 @@ const StayDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
   useEffect(() => {
     const fetchStayData = async () => {
       try {
-        const data = await apiService.getStay(stayId); // Assuming you have getStay in apiService
+        const data = await apiService.getStay(stayId); 
         setStay(data);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
@@ -32,16 +32,12 @@ const StayDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     };
 
     fetchStayData();
-
-    // REFRESHING AFTER UDATE:
     const unsubscribe = navigation.addListener('focus', () => {
       fetchStayData();
     });    
     return unsubscribe;
-    
   }, [stayId, navigation]);
 
-  // Icons defined once to improve performance 
   const renderCapacityIcon = useCallback((props: any) => <List.Icon {...props} icon="account-group" />, []);
   const renderPatientIcon = useCallback((props: any) => <List.Icon {...props} icon="account" />, []);
   const renderChevronIcon = useCallback((props: any) => <List.Icon {...props} icon="chevron-right" />, []);
@@ -49,7 +45,7 @@ const StayDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
   const handleDelete = () => {
     Alert.alert(
       'Confirm Deletion',
-      'Are you sure you want to delete this stay? This operation cannot be undone.',
+      'Are you sure you want to delete this stay?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -68,10 +64,12 @@ const StayDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
     );
   };
 
-  // Helper to format dates
   const formatDate = (isoString: string) => {
-    const date = new Date(isoString);
-    return date.toLocaleDateString();
+    try {
+      return new Date(isoString).toLocaleDateString('pl-PL');
+    } catch {
+      return '--.--.----';
+    }
   };
 
   if (loading) {
@@ -83,38 +81,19 @@ const StayDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
   }
 
   if (!stay) {
-    return (
-      <View style={styles.centerBox}><Text>Stay not found!</Text></View>
-    );
+    return <View style={styles.centerBox}><Text>Stay not found!</Text></View>;
   }
 
   const isFull = stay.occupancy >= stay.maxCapacity;
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]} >
-      
-      {/* HEADER BLOCK */}
       <Surface style={[styles.header, { backgroundColor: theme.colors.primary }]}>
-        <IconButton
-          icon="arrow-left"
-          iconColor={theme.colors.onPrimary}
-          size={28}
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        />
-
+        <IconButton icon="arrow-left" iconColor={theme.colors.onPrimary} size={28} style={styles.backButton} onPress={() => navigation.goBack()} />
         <View style={styles.headerRow}>
-          <Avatar.Icon 
-            size={64}
-            icon="calendar-range" 
-            style={{ backgroundColor: theme.colors.surface }}
-            color={theme.colors.primary}
-          />
-
+          <Avatar.Icon size={64} icon="calendar-range" style={{ backgroundColor: theme.colors.surface }} color={theme.colors.primary} />
           <View style={styles.headerTextInfo}>
-            <Text variant="headlineSmall" style={styles.titleName}>
-              {stay.name}
-            </Text>
+            <Text variant="headlineSmall" style={styles.titleName}>{stay.name}</Text>
             <Text variant="bodyMedium" style={styles.dateSubtitle}>
               {formatDate(stay.startDate)}  -  {formatDate(stay.endDate)}
             </Text>
@@ -122,7 +101,6 @@ const StayDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
       </Surface>
 
-      {/* STAY DETAILS SECTION */}
       <View style={styles.section}>
         <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.primary }]}>
           Stay Information
@@ -135,24 +113,22 @@ const StayDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         />
       </View>
 
-      {/* ENROLLED PATIENTS SECTION */}
       <View style={styles.section}>
         <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.primary }]}>
-          Enrolled Patients ({stay.patients?.length || 0})
+          Enrolled Patients ({stay.participations?.length || 0})
         </Text>
         
-        {stay.patients && stay.patients.length > 0 ? (
-          stay.patients.map((patient, index) => (
-            <React.Fragment key={patient.stayParticipationId}>
+        {stay.participations && stay.participations.length > 0 ? (
+          stay.participations.map((participation, index) => (
+            <React.Fragment key={participation.id}>
               <List.Item
-                title={patient.patientFullName}
-                description={`Patient ID: ${patient.patientId}`}
+                title={participation.patient?.fullName || 'Unknown Patient'}
                 left={renderPatientIcon}
                 right={renderChevronIcon}
-                onPress={() => navigation.navigate('PatientDetails', { patientId: patient.patientId })}
+                onPress={() => navigation.navigate('PatientDetails', { patientId: participation.patient.id })}
                 style={styles.listItemNoPadding} 
               />
-              {index < stay.patients.length - 1 && <Divider />}
+              {index < stay.participations.length - 1 && <Divider />}
             </React.Fragment>
           ))
         ) : (
@@ -160,91 +136,38 @@ const StayDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
         )}
       </View>
 
-      {/* ACTIONS SECTION */}
       <View style={[styles.section, styles.actionsSection]}>
-        <Button 
-          mode="contained" 
-          icon="calendar-edit" 
-          onPress={() => navigation.navigate('EditStay', { stayId: stayId })}
-          style={styles.actionButton} 
-        >
+        <Button mode="contained" icon="calendar-edit" onPress={() => navigation.navigate('EditStay', { stayId: stayId })} style={styles.actionButton}>
           Edit Stay Info
         </Button>
-        
-        <Button 
-          mode="outlined"
-          icon="delete" 
-          onPress={handleDelete}
-          textColor={theme.colors.error}         
-          style={styles.actionButton}
-        >
+        <Button mode="outlined" icon="delete" onPress={handleDelete} textColor={theme.colors.error} style={styles.actionButton}>
           Delete Stay
         </Button>
       </View>
+
+      <AddFAB 
+        onPress={() => navigation.navigate('AddPatientToStay', { stayId: stayId })} 
+      />
+
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1 
-  },
-  centerBox: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  header: {
-    paddingTop: 40, 
-    paddingBottom: 25,
-    position: 'relative',
-  },
-  backButton: {
-    position: 'absolute',
-    top: 40, 
-    left: 10,
-    zIndex: 10,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 35, 
-    paddingHorizontal: 20, 
-  },
-  headerTextInfo: {
-    marginLeft: 15,
-    flex: 1, 
-  },
-  titleName: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-  },
-  dateSubtitle: {
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginTop: 2, 
-  },
-  section: {
-    padding: 20,
-    paddingBottom: 5, 
-  },
-  sectionTitle: {
-    marginBottom: 5,
-  },
-  listItemNoPadding: {
-    paddingHorizontal: 0,
-  },
-  noDataText: {
-    marginVertical: 10, 
-    color: '#666',
-    fontStyle: 'italic',
-  },
-  actionsSection: {
-    marginTop: 10,
-    paddingBottom: 40,
-  },
-  actionButton: {
-    marginBottom: 15,
-  },
+  container: { flex: 1 },
+  centerBox: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  header: { paddingTop: 40, paddingBottom: 25, position: 'relative' },
+  backButton: { position: 'absolute', top: 40, left: 10, zIndex: 10 },
+  headerRow: { flexDirection: 'row', alignItems: 'center', marginTop: 35, paddingHorizontal: 20 },
+  headerTextInfo: { marginLeft: 15, flex: 1 },
+  titleName: { color: '#FFFFFF', fontWeight: 'bold' },
+  dateSubtitle: { color: 'rgba(255, 255, 255, 0.8)', marginTop: 2 },
+  section: { padding: 20, paddingBottom: 5 },
+  sectionTitle: { marginBottom: 5 },
+  listItemNoPadding: { paddingHorizontal: 0 },
+  noDataText: { marginVertical: 10, color: '#666', fontStyle: 'italic' },
+  actionsSection: { marginTop: 10, paddingBottom: 40 },
+  actionButton: { marginBottom: 15 },
 });
 
 export default StayDetailsScreen;

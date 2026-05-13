@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, ActivityIndicator, TouchableWithoutFeedback } from 'react-native';
 import { TextInput, Button, useTheme } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useStays } from '../../context/StaysContext';
 import { UpdateStayRequest } from '../../types/models';
 import CustomHeader from '../../components/CustomHeader';
+import DatePicker from 'react-native-date-picker';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EditStay'>;
 
@@ -16,19 +17,24 @@ const EditStayScreen: React.FC<Props> = ({ route, navigation }) => {
   const { stays, updateStay } = useStays();
 
   const [name, setName] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
   const [maxCapacity, setMaxCapacity] = useState('');
+
+  // Stany dla DatePickerów
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [openStartPicker, setOpenStartPicker] = useState(false);
+  const [openEndPicker, setOpenEndPicker] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
+    // Pobieramy podstawowe dane z listy w kontekście
     const stayToEdit = stays.find(s => s.id === stayId);
     if (stayToEdit) {
       setName(stayToEdit.name);
-      setStartDate(stayToEdit.startDate); 
-      setEndDate(stayToEdit.endDate);
+      setStartDate(new Date(stayToEdit.startDate)); 
+      setEndDate(new Date(stayToEdit.endDate));
       setMaxCapacity(stayToEdit.maxCapacity.toString());
       setLoadingData(false);
     } else {
@@ -39,32 +45,36 @@ const EditStayScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const handleSubmit = async () => {
     try {
-      // 1. Validation for empty fields
-      if (!name.trim() || !startDate.trim() || !endDate.trim() || !maxCapacity.trim()) {
+      // VALIDATE
+      if (!name.trim() || !startDate || !endDate || !maxCapacity.trim()) {
         Alert.alert('Error', 'All fields are required.');
         return;
       }
 
-      // 2. Capacity validation
+      if (endDate < startDate) {
+        Alert.alert('Error', 'End Date cannot be earlier than Start Date.');
+        return;
+      }
+
       const parsedCapacity = parseInt(maxCapacity.trim(), 10);
       if (isNaN(parsedCapacity) || parsedCapacity <= 0) {
         Alert.alert('Error', 'Max capacity must be a number greater than zero.');
         return;
       }
 
-      // 3. Sending to API
+      // SET PAYLOAD
       setSubmitting(true);
       const formData: UpdateStayRequest = {
-        id: stayId, // Required for updates
+        id: stayId,
         name: name.trim(),
-        startDate: startDate.trim(), 
-        endDate: endDate.trim(),     
+        startDate: startDate.toISOString().split('T')[0], 
+        endDate: endDate.toISOString().split('T')[0],     
         maxCapacity: parsedCapacity,
       };
       
+      // SEND
       await updateStay(stayId, formData);
 
-      // 4. Success
       Alert.alert('Success', 'Stay has been successfully updated.', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]); 
@@ -100,24 +110,67 @@ const EditStayScreen: React.FC<Props> = ({ route, navigation }) => {
           disabled={submitting}
         />
 
-        <TextInput 
-          mode="outlined"
-          label="Start Date *"
-          placeholder="YYYY-MM-DD (e.g. 2026-09-01)"
-          value={startDate}
-          onChangeText={setStartDate}
-          style={styles.input}
-          disabled={submitting}
+        {/* Start Date Picker */}
+        <TouchableWithoutFeedback onPress={() => setOpenStartPicker(true)} disabled={submitting}>
+          <View>
+            <TextInput 
+              mode="outlined"
+              label="Start Date *"
+              value={startDate ? startDate.toLocaleDateString('pl-PL') : ''}
+              placeholder="Pick start date"
+              editable={false}
+              right={<TextInput.Icon icon="calendar" />}
+              style={styles.input}
+              disabled={submitting}
+            />
+          </View>
+        </TouchableWithoutFeedback>
+        <DatePicker
+          modal
+          open={openStartPicker}
+          date={startDate || new Date()}
+          mode="date"
+          locale="en-GB"
+          confirmText="Confirm"
+          cancelText="Cancel"
+          title="Pick Start Date"
+          onConfirm={(date) => {
+            setOpenStartPicker(false);
+            setStartDate(date);
+          }}
+          onCancel={() => setOpenStartPicker(false)}
         />
 
-        <TextInput 
-          mode="outlined"
-          label="End Date *"
-          placeholder="YYYY-MM-DD (e.g. 2026-09-14)"
-          value={endDate}
-          onChangeText={setEndDate}
-          style={styles.input}
-          disabled={submitting}
+        {/* End Date Picker */}
+        <TouchableWithoutFeedback onPress={() => setOpenEndPicker(true)} disabled={submitting}>
+          <View>
+            <TextInput 
+              mode="outlined"
+              label="End Date *"
+              value={endDate ? endDate.toLocaleDateString('pl-PL') : ''}
+              placeholder="Pick end date"
+              editable={false}
+              right={<TextInput.Icon icon="calendar" />}
+              style={styles.input}
+              disabled={submitting}
+            />
+          </View>
+        </TouchableWithoutFeedback>
+        <DatePicker
+          modal
+          open={openEndPicker}
+          date={endDate || startDate || new Date()} 
+          minimumDate={startDate || undefined}
+          mode="date"
+          locale="en-GB"
+          confirmText="Confirm"
+          cancelText="Cancel"
+          title="Pick End Date"
+          onConfirm={(date) => {
+            setOpenEndPicker(false);
+            setEndDate(date);
+          }}
+          onCancel={() => setOpenEndPicker(false)}
         />
 
         <TextInput 

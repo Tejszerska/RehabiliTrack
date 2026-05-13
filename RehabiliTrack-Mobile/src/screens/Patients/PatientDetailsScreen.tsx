@@ -163,7 +163,7 @@ const PatientDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
                 description={`${new Date(stay.startDate).toLocaleDateString()} - ${endDateObj.toLocaleDateString()} (${isCompleted ? 'Completed' : 'Active'})`}
                 left={renderCalendarIcon} 
                 right={renderChevronIcon} 
-                onPress={() => {/* NAVIGATE TO STAY DETAILS  */}}
+                onPress={() => navigation.navigate('StayDetails', { stayId: stay.stayId })}                
                 style={styles.listItemNoPadding} 
               />
             );
@@ -172,14 +172,6 @@ const PatientDetailsScreen: React.FC<Props> = ({ route, navigation }) => {
           <Text style={styles.noStays}>No stays assigned.</Text>
         )}
         
-        <Button 
-          mode="contained" 
-          icon="calendar-plus" 
-          onPress={() => {}} 
-          style={styles.actionButton}
-        >
-          Enroll in a New Stay
-        </Button>
         <Button 
           mode="outlined"
           icon="delete" 

@@ -26,13 +26,16 @@ namespace RehabiliTrack_API.Features.Stays.Queries.GetStayById
                     Occupancy = s.StayParticipations.Count(sp => sp.IsActive),
                     MaxCapacity = s.MaxCapacity,
 
-                    Patients = s.StayParticipations
+                    Participations = s.StayParticipations
                         .Where(sp => sp.IsActive)
-                        .Select(sp => new StayPatientDto
+                        .Select(sp => new StayParticipationInfoDto
                         {
-                            StayParticipationId = sp.Id,
-                            PatientId = sp.PatientId,
-                            PatientFullName = sp.Patient!.FirstName + " " + sp.Patient.LastName
+                            Id = sp.Id,
+                            Patient = new StayPatientInfoDto
+                            {
+                                Id = sp.PatientId,
+                                FullName = sp.Patient!.FirstName + " " + sp.Patient.LastName
+                            }
                         }).ToList()
                 })
                 .FirstOrDefaultAsync(cancellationToken);

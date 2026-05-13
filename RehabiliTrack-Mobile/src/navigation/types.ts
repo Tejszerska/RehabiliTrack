@@ -42,6 +42,7 @@ export type RootStackParamList = {
   AddStay: undefined;
   EditStay: { stayId: number };
   StayDetails: { stayId: number }; 
+  AddPatientToStay: { stayId: number } ;
 
   // APPOINTMENTS
   Appointments: undefined; 
