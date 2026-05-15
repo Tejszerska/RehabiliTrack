@@ -1,5 +1,5 @@
 # RehabiliTrack – Rehabilitation Center Management System
-##  Work In Progress 
+**! Work In Progress !** 
 
 This application is being developed as a portfolio project to showcase my skills in mobile app development (React Native / TypeScript) and building a modern API (C# / .NET / CQRS) in the context of seeking an internship / junior developer role.
 
