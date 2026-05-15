@@ -35,7 +35,7 @@ For this project, I chose a modern and highly sought-after technology stack:
 * Appointments Management: A full appointment scheduling flow connecting a Patient, Therapist, Rehab Room, and Treatment.
 
 ## Screenshots
-![RehabiliTrack MOBILE](../readme-img/1.png)
+![RehabiliTrack MOBILE](readme-img/1.png)
 
 ## Upcoming Features 
 The project is continuously evolving. The next steps I plan to implement include:
