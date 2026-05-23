@@ -4,7 +4,7 @@ const getBaseUrl = (): string => {
   if (__DEV__) {
     // DOCKER: Użyj lokalnego IP komputera (nie localhost!)
     if (Platform.OS === 'android') {
-      return 'http://192.168.0.21:5258/api'; 
+      return 'http://10.0.2.2:5258/api'; 
     } else if (Platform.OS === 'ios') {
       return 'http://192.168.0.21:5258/api';
     }

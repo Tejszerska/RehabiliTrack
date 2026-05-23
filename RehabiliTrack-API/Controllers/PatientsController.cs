@@ -120,14 +120,11 @@ namespace RehabiliTrack_API.Controllers
         /// <summary>
         /// Read a list of patients matching search phrase (name or PESEL)
         /// </summary>
-        [HttpGet("{search:string}")] // Swagger fix
-        [ProducesResponseType(typeof(List<PatientListItemDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> SearchPatients([FromRoute] string search)
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string term)
         {
-            var query = new SearchPatientsQuery(search);
-
-            var result = await _mediator.Send(query);            
+            var query = new SearchPatientsQuery(term);
+            var result = await _mediator.Send(query);
             return Ok(result);
         }
     }

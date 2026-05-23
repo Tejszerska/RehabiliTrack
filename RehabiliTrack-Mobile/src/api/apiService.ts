@@ -103,6 +103,10 @@ class ApiService {
     });
   }
 
+    async searchPatients(term: string): Promise<PatientListItem[]> {
+    return this.request<PatientListItem[]>(`/Patients/search?term=${encodeURIComponent(term)}`);
+  }
+
   // === THERAPISTS ===
   async getTherapists(): Promise<Therapist[]> {
     return this.request<Therapist[]>('/Therapists');

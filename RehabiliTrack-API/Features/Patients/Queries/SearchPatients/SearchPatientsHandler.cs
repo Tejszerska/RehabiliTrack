@@ -1,11 +1,12 @@
-﻿using RehabiliTrack_API.Features.Patients.Queries.GetAllPatients;
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
+using RehabiliTrack_API.Features.Patients.Queries.GetAllPatients;
 using RehabiliTrack_API.Features.Patients.Queries.GetPatientById;
 using RehabiliTrack_API.Models.Data;
-using Microsoft.EntityFrameworkCore;
 
 namespace RehabiliTrack_API.Features.Patients.Queries.SearchPatients
 {
-    public class SearchPatientsHandler
+    public class SearchPatientsHandler : IRequestHandler<SearchPatientsQuery, List<PatientListItemDto>>
     {
         private readonly ApplicationDbContext _context;
 

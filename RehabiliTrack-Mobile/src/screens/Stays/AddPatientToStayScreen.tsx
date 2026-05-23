@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
-import { Button, useTheme, Text, Surface } from 'react-native-paper';
+import { Button, useTheme, Text, Surface, Searchbar } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { PatientListItem, StayDetails } from '../../types/models';
@@ -18,6 +18,9 @@ const AddPatientToStayScreen: React.FC<Props> = ({ route, navigation }) => {
   const [patients, setPatients] = useState<PatientListItem[]>([]);
   const [stayInfo, setStayInfo] = useState<StayDetails | null>(null);
   
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searching, setSearching] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
@@ -39,6 +42,31 @@ const AddPatientToStayScreen: React.FC<Props> = ({ route, navigation }) => {
     };
     loadData();
   }, [stayId, navigation]);
+
+
+  /* searching */
+    useEffect(() => {
+    if (!searchQuery.trim()) {
+      return; 
+    }
+
+    setSearching(true);
+
+    const delayDebounceFn = setTimeout(async () => {
+      try {
+        const results = await apiService.searchPatients(searchQuery);
+        setPatients(results); 
+      } catch (error) {
+        Alert.alert('Error', 'Failed to search patients.');
+      } finally {
+        setSearching(false);
+      }
+    }, 2000);
+
+    return () => clearTimeout(delayDebounceFn);
+    
+  }, [searchQuery]); 
+
 
   const handleSubmit = async () => {
     if (!patientId) {
@@ -97,6 +125,14 @@ const AddPatientToStayScreen: React.FC<Props> = ({ route, navigation }) => {
           Select a patient to be assigned to this stay:
         </Text>
 
+        <Searchbar
+          placeholder="Type surname and name"
+          onChangeText={setSearchQuery}
+          value={searchQuery}
+          style={styles.searchbar}
+          loading={searching}
+        />
+
         <PickerField
           label="Patient *"
           value={patientId}
@@ -144,6 +180,12 @@ const styles = StyleSheet.create({
   label: { marginBottom: 15, color: '#666' },
   buttonRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 30 },
   button: { flex: 0.48, paddingVertical: 5 },
+  searchbar: {
+    marginBottom: 15,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  }
 });
 
 export default AddPatientToStayScreen;
