@@ -198,7 +198,7 @@ const AddAppointmentScreen = () => {
           locale="en-GB"
           open={openDatePicker}
           date={date}
-          mode="datetime" // Pokazuje od razu wybór daty i godziny!
+          mode="datetime"
           confirmText="Confirm"
           cancelText="Cancel"
           title="Pick appointment's date"

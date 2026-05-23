@@ -6,6 +6,7 @@ using RehabiliTrack_API.Features.Patients.Commands.DeletePatient;
 using RehabiliTrack_API.Features.Patients.Commands.UpdatePatient;
 using RehabiliTrack_API.Features.Patients.Queries.GetAllPatients;
 using RehabiliTrack_API.Features.Patients.Queries.GetPatientById;
+using RehabiliTrack_API.Features.Patients.Queries.SearchPatients;
 
 namespace RehabiliTrack_API.Controllers
 {
@@ -115,5 +116,19 @@ namespace RehabiliTrack_API.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Read a list of patients matching search phrase (name or PESEL)
+        /// </summary>
+        [HttpGet("{search:string}")] // Swagger fix
+        [ProducesResponseType(typeof(List<PatientListItemDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> SearchPatients([FromRoute] string search)
+        {
+            var query = new SearchPatientsQuery(search);
+
+            var result = await _mediator.Send(query);            
+            return Ok(result);
+        }
     }
 }
