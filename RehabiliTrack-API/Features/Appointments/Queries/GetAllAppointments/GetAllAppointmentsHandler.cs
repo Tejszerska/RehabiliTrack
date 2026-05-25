@@ -16,7 +16,16 @@ namespace RehabiliTrack_API.Features.Appointments.Queries.GetAllAppointments
         public async Task<List<AppointmentListItemDto>> Handle(GetAllAppointmentsQuery request, CancellationToken cancellationToken)
         {
 
-            var appointments = await _context.Appointments
+            var query =  _context.Appointments.AsQueryable();
+
+            if(request.StayId.HasValue)
+            {
+                query = query.Where(a => a.StayParticipationId == request.StayId);
+            }
+
+            query = query.OrderBy(a => a.StartDateTime);
+
+            var appointments = await query
                 .Include(a => a.Patient)
                 .Include(a => a.Treatment)
                 .Include(a => a.Therapist)

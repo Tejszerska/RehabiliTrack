@@ -1,8 +1,11 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RehabiliTrack_API.Features.Patients.Queries.GetAllPatients;
+using RehabiliTrack_API.Features.Patients.Queries.SearchPatients;
 using RehabiliTrack_API.Features.StayParticipations.Commands.AssignPatientToStay;
 using RehabiliTrack_API.Features.StayParticipations.Commands.RemovePatientFromStay;
+using RehabiliTrack_API.Features.StayParticipations.Queries.GetPatientsForStay;
 
 namespace RehabiliTrack_API.Controllers
 {
@@ -50,6 +53,18 @@ namespace RehabiliTrack_API.Controllers
             {
                 return NotFound(new { message = ex.Message });
             }
+        }
+
+        /// <summary>
+        /// Read a list of patients for a stay given id
+        /// </summary>
+        [HttpGet("{id:int}/patients")]
+        [ProducesResponseType(typeof(List<PatientListItemDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPatientsForStay([FromRoute] int id)
+        {
+            var query = new GetPatientsForStayQuery(id);
+            var patients = await _mediator.Send(query);
+            return Ok(patients);
         }
     }
 }

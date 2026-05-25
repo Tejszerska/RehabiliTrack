@@ -1,9 +1,11 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using RehabiliTrack_API.Features.StayParticipations.Queries.GetCurrentStay;
 using RehabiliTrack_API.Features.Stays.Commands.CreateStay;
 using RehabiliTrack_API.Features.Stays.Commands.DeleteStay;
 using RehabiliTrack_API.Features.Stays.Commands.UpdateStay;
+using RehabiliTrack_API.Features.Stays.GetCurrentStay;
 using RehabiliTrack_API.Features.Stays.Queries.GetAllStays;
 using RehabiliTrack_API.Features.Stays.Queries.GetStayById;
 
@@ -94,6 +96,16 @@ namespace RehabiliTrack_API.Controllers
             {
                 return NotFound(new { message = ex.Message });
             }
+        }
+
+
+        [HttpGet("current")]
+        [ProducesResponseType(typeof(List<StayDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult> GetCurrent()
+        {
+            var query = new GetCurrentStayQuery();
+            var stays = await _mediator.Send(query);
+            return Ok(stays);
         }
     }
 }
