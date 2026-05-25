@@ -18,9 +18,13 @@ namespace RehabiliTrack_API.Features.Appointments.Queries.GetAllAppointments
 
             var query =  _context.Appointments.AsQueryable();
 
-            if(request.StayId.HasValue)
+            if(request.StayIds != null && request.StayIds.Any())
             {
-                query = query.Where(a => a.StayParticipationId == request.StayId);
+
+                foreach(var stayId in request.StayIds)
+                {
+                    query = query.Where(a => a.StayParticipationId == stayId);
+                }
             }
 
             query = query.OrderBy(a => a.StartDateTime);

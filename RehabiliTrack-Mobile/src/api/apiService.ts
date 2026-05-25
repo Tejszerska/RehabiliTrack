@@ -256,6 +256,9 @@ class ApiService {
   async getStays(): Promise<Stay[]> {
     return this.request<Stay[]>('/Stays');
   }
+  async getCurrentStays(): Promise<Stay[]> {
+    return this.request<Stay[]>('/Stays/Current');
+  }
 
   async getStay(id: number): Promise<StayDetails> {
     return this.request<StayDetails>(`/Stays/${id}`);

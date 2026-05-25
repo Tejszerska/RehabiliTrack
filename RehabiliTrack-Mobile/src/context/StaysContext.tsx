@@ -1,25 +1,26 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import apiService from '../api/apiService';
-import type {  CreateStayRequest, Stay, UpdateStayRequest } from '../types/models';
+import type {  CreateStayRequest, StayListItem, UpdateStayRequest } from '../types/models';
 
 interface StaysContextType {
-    stays: Stay[];
-    loading: boolean;
-    error: string | null;
+  stays: StayListItem[];
+  loading: boolean;
+  error: string | null;
+  currentStays: StayListItem[] | null;
 
-    // Actions
+  // Actions
   refreshStays: () => Promise<void>;
   createStay: (data: CreateStayRequest) => Promise<void>;
   updateStay: (id: number, data: UpdateStayRequest) => Promise<void>;
   deleteStay: (id: number) => Promise<void>;
-
+  fetchCurrentStays: () => Promise<void>;
 }
 
 const StaysContext = createContext<StaysContextType | undefined>(undefined);
 
-
 export function StaysProvider({ children }: { children: ReactNode }) {
-  const [stays, setStays] = useState<Stay[]>([]);
+  const [stays, setStays] = useState<StayListItem[]>([]);
+  const [currentStays, setCurrentStays] = useState<StayListItem[] | null>(null); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,8 +45,6 @@ export function StaysProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       await apiService.createStay(data);
-      
-      // Refresh list from API to get full data
       await refreshStays();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
@@ -59,8 +58,6 @@ export function StaysProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       await apiService.updateStay(id, data);
-      
-      // Refresh list from API to get full data
       await refreshStays();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
@@ -74,8 +71,6 @@ export function StaysProvider({ children }: { children: ReactNode }) {
     try {
       setError(null);
       await apiService.deleteStay(id);
-      
-      // delete local
       setStays(prev => prev.filter(stay => stay.id !== id));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
@@ -84,10 +79,27 @@ export function StaysProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Załaduj produkty przy montowaniu
+  const fetchCurrentStays = async () => {
+    try {
+      const activeStays = await apiService.getCurrentStays();
+      setCurrentStays(activeStays);
+    } catch (err) {
+      console.error("Failed to fetch current stays", err);
+    }
+  };
+
   useEffect(() => {
-    refreshStays();
-  }, []);
+    const init = async () => {
+      setLoading(true);
+      await Promise.all([
+        refreshStays(),
+        fetchCurrentStays()
+      ]);
+      setLoading(false);
+    };
+    
+    init();
+  }, []); 
 
   return (
     <StaysContext.Provider
@@ -95,10 +107,12 @@ export function StaysProvider({ children }: { children: ReactNode }) {
         stays,
         loading,
         error,
+        currentStays,
         refreshStays,
         createStay,
         updateStay,
         deleteStay,
+        fetchCurrentStays,
       }}
     >
       {children}
@@ -109,7 +123,7 @@ export function StaysProvider({ children }: { children: ReactNode }) {
 export function useStays() {
   const context = useContext(StaysContext);
   if (!context) {
-    throw new Error('useStays must be used withinStaysProvider');
+    throw new Error('useStays must be used within StaysProvider');
   }
   return context;
 }

@@ -5,7 +5,7 @@ namespace RehabiliTrack_API.Features.Appointments.Queries.GetAllAppointments
 {
     public class GetAllAppointmentsQuery : IRequest<List<AppointmentListItemDto>>
     {
-        public int? StayId { get; set; }
+        public List<int>? StayIds { get; set; }
     }
 
     public class AppointmentListItemDto
