@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RehabiliTrack_API.Features.StayParticipations.Queries.GetCurrentStay;
 using RehabiliTrack_API.Features.Stays.Commands.CreateStay;
 using RehabiliTrack_API.Features.Stays.Commands.DeleteStay;
 using RehabiliTrack_API.Features.Stays.Commands.UpdateStay;

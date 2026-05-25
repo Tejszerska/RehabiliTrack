@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace RehabiliTrack_API.Features.Appointments.Queries.GetAppointmentById
 {
-    public class GetAppointmentByIdHandler : IRequestHandler<GetAppointmentByIdQuery, AppointmentDetailsDto>
+    public class GetAppointmentByIdHandler : IRequestHandler<GetAppointmentByIdQuery, AppointmentDetailsDto?>
     {
         private readonly ApplicationDbContext _context;
 
