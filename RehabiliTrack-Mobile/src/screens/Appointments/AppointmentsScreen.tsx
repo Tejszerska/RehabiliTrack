@@ -1,25 +1,61 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, FlatList, StyleSheet, ScrollView } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useTheme, Text, Chip, ActivityIndicator } from 'react-native-paper';
-import { useAppointments } from '../../context/AppointmentsContext';
 import { AppointmentListItem } from '../../types/models';
 import AddFAB from '../../components/AddFAB';
 import AppointmentCard from '../../components/AppointmentCard';
+import { useStays } from '../../context/StaysContext';
+import apiService from '../../api/apiService';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Appointments'>;
 
-const AppointmentsScreen: React.FC<Props> = () => {
+const AppointmentsScreen = () => {
   const theme = useTheme();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(); 
-  const { appointments, loading, refreshAppointments } = useAppointments();
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  
+  const { currentStays, loading: staysLoading } = useStays();
+  const [appointments, setAppointments] = useState<AppointmentListItem[]>([]);  
+  const [loading, setLoadingAppointments] = useState(true);
 
   const handlePress = useCallback((id: number) => {
     navigation.navigate('AppointmentDetails', { appointmentId: id });
   }, [navigation]);
+
+  const fetchAppointments = useCallback(async () => {
+    if (staysLoading) return;
+
+    if (!currentStays || currentStays.length === 0) {
+      setAppointments([]);
+      setLoadingAppointments(false);
+      return;
+    }
+
+    try {
+      setLoadingAppointments(true);
+      const currentStaysIds = currentStays.map(s => s.id);
+      const data = await apiService.getAppointments(currentStaysIds);
+      setAppointments(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingAppointments(false);
+    }
+  }, [currentStays, staysLoading]);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
+
+  //nasłuchiwanie na Focus po powrocie z innego ekranu
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchAppointments();
+    });    
+    return unsubscribe; 
+  }, [navigation, fetchAppointments]);
+
 
   const renderAppointmentItem = useCallback(({ item }: { item: AppointmentListItem }) => (
     <AppointmentCard
@@ -64,6 +100,11 @@ const AppointmentsScreen: React.FC<Props> = () => {
           onPress={() => {}} 
           style={[styles.chip, { backgroundColor: theme.colors.secondary }]}>
             By Patient</Chip>
+            <Chip 
+          icon="calendar" 
+          onPress={() => {}} 
+          style={[styles.chip, { backgroundColor: theme.colors.secondary }]}>
+            Past stays</Chip>
         </ScrollView>
       </View>
 
@@ -72,8 +113,8 @@ const AppointmentsScreen: React.FC<Props> = () => {
         renderItem={renderAppointmentItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
-        ListEmptyComponent={renderEmpty}
-        onRefresh={refreshAppointments}
+        ListEmptyComponent={renderEmpty}        
+        onRefresh={fetchAppointments} 
         refreshing={loading}
       />
 

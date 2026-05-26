@@ -285,8 +285,13 @@ class ApiService {
   }
 
 // === APPOINTMENTS ===
-  async getAppointments(): Promise<AppointmentListItem[]> {
-    return this.request<AppointmentListItem[]>('/Appointments');
+  async getAppointments(stayIds?: number[]): Promise<AppointmentListItem[]> {
+    if(!stayIds || stayIds.length === 0 ){
+      return this.request<AppointmentListItem[]>(`/Appointments/`); 
+    }
+
+    const queryString = stayIds.map(id => `stayIds=${id}`).join('&');  
+    return this.request<AppointmentListItem[]>(`/Appointments?${queryString}`);
   }
 
   async getAppointment(id: number): Promise<AppointmentDetails> {

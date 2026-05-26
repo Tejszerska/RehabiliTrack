@@ -268,7 +268,7 @@ export interface CreateAppointmentRequest {
   roomId: number;
   startDateTime: string;
   status: AppointmentStatus;
-  stayParticipationId?: number; 
+  stayId?: number; 
 }
 
 export interface UpdateAppointmentRequest {

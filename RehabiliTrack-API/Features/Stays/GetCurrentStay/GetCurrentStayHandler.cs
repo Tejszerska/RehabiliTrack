@@ -21,6 +21,7 @@ namespace RehabiliTrack_API.Features.Stays.GetCurrentStay
         {
             var curentStays = await _context.Stays
                 .Where(s => s.StartDate <= DateTime.Now && s.EndDate >= DateTime.Now)
+                .Where(s => s.IsActive == true)
                 .Select(s => new StayDto
                 {
                     Id = s.Id,

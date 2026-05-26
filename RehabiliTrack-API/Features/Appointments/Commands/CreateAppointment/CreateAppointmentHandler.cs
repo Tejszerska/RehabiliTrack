@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using RehabiliTrack_API.Models.Data;
 using RehabiliTrack_API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace RehabiliTrack_API.Features.Appointments.Commands.CreateAppointment
 {
@@ -19,6 +20,17 @@ namespace RehabiliTrack_API.Features.Appointments.Commands.CreateAppointment
 
         public async Task<int> Handle(CreateAppointmentCommand request, CancellationToken cancellationToken)
         {
+
+            int? correctStayParticipationId = null;
+
+            if (request.StayId.HasValue)
+            {
+                var participation = await _context.StayParticipations
+                    .FirstOrDefaultAsync(sp => sp.PatientId == request.PatientId && sp.StayId == request.StayId);
+                                
+                correctStayParticipationId = participation?.Id;
+            }
+
             var appointment = new Appointment
             {
                 PatientId = request.PatientId,
@@ -27,7 +39,7 @@ namespace RehabiliTrack_API.Features.Appointments.Commands.CreateAppointment
                 RoomId = request.RoomId,
                 StartDateTime = request.StartDateTime,
                 Status = AppointmentStatus.Scheduled,
-                StayParticipationId = request.StayParticipationId
+                StayParticipationId = correctStayParticipationId
             };
 
             _context.Appointments.Add(appointment);

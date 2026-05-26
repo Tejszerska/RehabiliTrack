@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useAppointments } from '../../context/AppointmentsContext';
-import { CreateAppointmentRequest, AppointmentStatus, PatientListItem, Treatment, RehabRoom, Stay, Therapist } from '../../types/models';
+import { CreateAppointmentRequest, AppointmentStatus, PatientListItem, Treatment, RehabRoom, Therapist, StayListItem } from '../../types/models';
 import CustomHeader from '../../components/CustomHeader';
 import { PickerField } from '../../components/PickerField'; 
 import apiService from '../../api/apiService';
@@ -23,13 +23,13 @@ const AddAppointmentScreen = () => {
   const [therapistId, setTherapistId] = useState<number | null>(null);
   const [roomId, setRoomId] = useState<number | null>(null);
   const [startDateTime, setStartDateTime] = useState(''); // np. 2026-05-08T10:00:00
-  const [stayParticipationId, setStayParticipationId] = useState<number | null>(null);
+  const [stayId, setStayId] = useState<number | null>(null);
 
   const [patients, setPatients] = useState<PatientListItem[]>([]);
   const [treatments, setTreatments] = useState<Treatment[]>([]);
   const [therapists, setTherapists] = useState<Therapist[]>([]);
   const [rehabRooms, setRehabRooms] = useState<RehabRoom[]>([]);
-  const [stays, setStays] = useState<Stay[]>([]);
+  const [stays, setStays] = useState<StayListItem[]>([]);
 
   const [date, setDate] = useState(new Date());
   const [openDatePicker, setOpenDatePicker] = useState(false);
@@ -90,9 +90,10 @@ const AddAppointmentScreen = () => {
         roomId: roomId,
         startDateTime: startDateTime.trim(),
         status: AppointmentStatus.Scheduled,
-        stayParticipationId: stayParticipationId || undefined 
+        stayId: stayId || undefined
       };
-      
+
+      console.log(formData)
       await createAppointment(formData);
 
       Alert.alert('Success', 'Appointment has been scheduled', [
@@ -214,11 +215,11 @@ const AddAppointmentScreen = () => {
 
         <PickerField
           label="Stay (Optional)"
-          value={stayParticipationId}
+          value={stayId}
           items={stays}
-          getValue={x => (x as any).participationId || x.id} 
+          getValue={x => x.id} 
           getLabel={x => x.name || `Stay #${x.id}`}
-          onChange={val => setStayParticipationId(val as number | null)}
+          onChange={val => setStayId(val as number | null)}
           placeholder="Outpatient (None)" 
           disabled={submitting}
         />

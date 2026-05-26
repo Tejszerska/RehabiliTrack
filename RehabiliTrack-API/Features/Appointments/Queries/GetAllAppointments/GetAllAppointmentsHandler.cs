@@ -23,7 +23,7 @@ namespace RehabiliTrack_API.Features.Appointments.Queries.GetAllAppointments
 
                 foreach(var stayId in request.StayIds)
                 {
-                    query = query.Where(a => a.StayParticipationId == stayId);
+                    query = query.Where(a => a.StayParticipation.StayId == stayId);
                 }
             }
 

@@ -14,6 +14,7 @@ namespace RehabiliTrack_API.Features.Appointments.Commands.CreateAppointment
         public DateTime StartDateTime { get; set; }
         public AppointmentStatus Status { get; set; }
         public int? StayParticipationId { get; set; } // Null = Outpatient (ambulatoryjny)
+        public int? StayId { get; set; } // Null = Outpatient (ambulatoryjny)
 
     }
 }

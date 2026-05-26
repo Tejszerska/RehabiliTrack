@@ -28,9 +28,12 @@ namespace RehabiliTrack_API.Controllers
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(List<AppointmentListItemDto>), StatusCodes.Status200OK)]
-        public async Task<ActionResult> GetAll()
+        public async Task<ActionResult> GetAll([FromQuery] List<int>? stayIds)
         {
-            var query = new GetAllAppointmentsQuery();
+            var query = new GetAllAppointmentsQuery
+            {
+                StayIds = stayIds
+            };
             var appointments = await _mediator.Send(query);
             return Ok(appointments);
         }
