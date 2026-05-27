@@ -9,40 +9,53 @@ import { useStays } from '../../context/StaysContext';
 import apiService from '../../api/apiService';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { PickerField } from '../../components/PickerField';
 
 
 const AppointmentsScreen = () => {
   const theme = useTheme();
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   
-  const { currentStays, loading: staysLoading } = useStays();
+  const { currentStays, stays, loading: staysLoading } = useStays();
   const [appointments, setAppointments] = useState<AppointmentListItem[]>([]);  
   const [loading, setLoadingAppointments] = useState(true);
+
+  const [showArchivePicker, setShowArchivePicker] = useState(false);
+  const [archiveStayId, setArchiveStayId] = useState<number | null>(null);
+  
 
   const handlePress = useCallback((id: number) => {
     navigation.navigate('AppointmentDetails', { appointmentId: id });
   }, [navigation]);
 
-  const fetchAppointments = useCallback(async () => {
+const fetchAppointments = useCallback(async () => {
     if (staysLoading) return;
-
-    if (!currentStays || currentStays.length === 0) {
-      setAppointments([]);
-      setLoadingAppointments(false);
-      return;
-    }
 
     try {
       setLoadingAppointments(true);
-      const currentStaysIds = currentStays.map(s => s.id);
-      const data = await apiService.getAppointments(currentStaysIds);
+      
+      let idsToFetch: number[] = [];
+
+      if (archiveStayId) {
+        idsToFetch = [archiveStayId];
+      } 
+      else if (currentStays && currentStays.length > 0) {
+        idsToFetch = currentStays.map(s => s.id);
+      }
+      else {
+        setAppointments([]);
+        return;
+      }
+
+      const data = await apiService.getAppointments(idsToFetch);
       setAppointments(data);
+      
     } catch (err) {
       console.error(err);
     } finally {
       setLoadingAppointments(false);
     }
-  }, [currentStays, staysLoading]);
+  }, [currentStays, staysLoading, archiveStayId]); 
 
   useEffect(() => {
     fetchAppointments();
@@ -100,13 +113,38 @@ const AppointmentsScreen = () => {
           onPress={() => {}} 
           style={[styles.chip, { backgroundColor: theme.colors.secondary }]}>
             By Patient</Chip>
-            <Chip 
-          icon="calendar" 
-          onPress={() => {}} 
-          style={[styles.chip, { backgroundColor: theme.colors.secondary }]}>
-            Past stays</Chip>
+           <Chip 
+            icon="calendar" 
+            selected={showArchivePicker} 
+            onPress={() => {
+              setShowArchivePicker(!showArchivePicker);
+              
+              if (showArchivePicker) {
+                setArchiveStayId(null);
+              }
+            }} 
+            style={[styles.chip, { backgroundColor: theme.colors.secondary }]}
+          >
+            Past stays
+          </Chip>
         </ScrollView>
       </View>
+
+
+
+        {showArchivePicker && (
+          <View style={{ paddingHorizontal: 20, paddingBottom: 10 }}>
+            <PickerField
+              label="Archival Stay"
+              value={archiveStayId}
+              items={stays} // Upewnij się, że masz tu pobraną listę turnusów!
+              getValue={x => x.id} 
+              getLabel={x => x.name || `Stay #${x.id}`}
+              onChange={val => setArchiveStayId(val as number | null)}
+              placeholder="Select past stay..." 
+            />
+          </View>
+        )}
 
       <FlatList
         data={appointments}
