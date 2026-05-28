@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { View, FlatList, StyleSheet, ScrollView } from 'react-native'
+import { View, FlatList, StyleSheet } from 'react-native'
 import { RootStackParamList } from '../../navigation/types'
-import { useTheme, Text, Chip, ActivityIndicator } from 'react-native-paper'
-import { AppointmentListItem } from '../../types/models'
+import { useTheme, Text, Chip } from 'react-native-paper'
+import { AppointmentListItem, Therapist } from '../../types/models'
 import AddFAB from '../../components/AddFAB'
 import AppointmentCard from '../../components/AppointmentCard'
 import { useStays } from '../../context/StaysContext'
@@ -31,9 +31,19 @@ const AppointmentsScreen = () => {
   // store selected archive stay id
   const [archiveStayId, setArchiveStayId] = useState<number | null>(null)
 
-  // for "today" chip filtering
-  const [filterToday, setFilterToday] = useState(false);
+  // for today chip filtering
+  const [filterToday, setFilterToday] = useState(false)
   
+  // toggle for therapist picker visibility
+  const [showTherapistPicker, setShowTherapistPicker] = useState(false)
+  // store selected therapist id
+  const [therapistId, setTherapistId] = useState<number | null>(null)
+  
+  // toggle for patient picker visibility
+  const [showPatientPicker, setShowPatientPicker] = useState(false)
+  // store selected patient id
+  const [patientId, setPatientId] = useState<number | null>(null)
+
 
   // navigate to details on card tap
   const handlePress = useCallback((id: number) => {
@@ -105,22 +115,73 @@ const AppointmentsScreen = () => {
 
 
   // dynamic list filtering
-const displayedAppointments = React.useMemo(() => {
-    if (!filterToday) {
-      return appointments;
+  const displayedAppointments = React.useMemo(() => {
+    // start with all appointments
+    let filtered = appointments
+
+    // apply today filter
+    if (filterToday) {
+      const todayString = new Date().toDateString()
+      filtered = filtered.filter(app => {
+        if (!app.startDateTime) return false
+        const appDate = new Date(app.startDateTime).toDateString()
+        return appDate === todayString
+      })
     }
 
-    const todayString = new Date().toDateString();
+    // apply therapist filter
+    if (therapistId) {
+      filtered = filtered.filter(app => {
+        return app.therapist?.id === therapistId
+      })
+    }
 
-    return appointments.filter(app => {
-      // in case of empty date
-      if (!app.startDateTime) return false; 
-      
-      const appDate = new Date(app.startDateTime).toDateString();
-      return appDate === todayString;
-    });
-  }, [appointments, filterToday]);
+    // apply patient filter
+    if (patientId) {
+      filtered = filtered.filter(app => {
+        return app.patient?.id === patientId
+      })
+    }
 
+    // return final list
+    return filtered
+  }, [appointments, filterToday, therapistId, patientId])
+
+// extract unique patients directly from appointments
+  const pickerPatients = React.useMemo(() => {
+    const uniquePatients = new Map()
+
+    appointments.forEach(app => {
+      if (app.patient && !uniquePatients.has(app.patient.id)) {
+        
+        uniquePatients.set(app.patient.id, {
+          id: app.patient.id,
+          fullName: app.patient.fullName
+        })        
+      }
+    })
+
+    return Array.from(uniquePatients.values())
+  }, [appointments])
+
+// extract unique therapists directly from appointments
+  const pickerTherapists = React.useMemo(() => {
+    const uniqueTherapists = new Map()
+
+    appointments.forEach(app => {
+      // secure check if therapist exists on appointment
+      if (app.therapist && !uniqueTherapists.has(app.therapist.id)) {
+        
+        uniqueTherapists.set(app.therapist.id, {
+          id: app.therapist.id,
+          fullName: app.therapist.fullName
+        })
+        
+      }
+    })
+
+    return Array.from(uniqueTherapists.values())
+  }, [appointments])
 
 
   // main ui wrapper
@@ -133,7 +194,7 @@ const displayedAppointments = React.useMemo(() => {
         <View style={styles.chipContainer}>
         
           <Chip 
-            icon="account-group" 
+            icon="calendar" 
             selected={showArchivePicker} 
             onPress={() => {
               setShowArchivePicker(!showArchivePicker)
@@ -157,7 +218,13 @@ const displayedAppointments = React.useMemo(() => {
 
           <Chip 
             icon="account-tie" 
-            onPress={() => {}} 
+            selected={showTherapistPicker}
+            onPress={() => {
+              setShowTherapistPicker(!showTherapistPicker)
+              if (showTherapistPicker) {
+                setTherapistId(null)
+              }
+            }} 
             style={[styles.chip, { backgroundColor: theme.colors.secondary }]}
           >
             By Therapist
@@ -165,7 +232,13 @@ const displayedAppointments = React.useMemo(() => {
 
           <Chip 
             icon="account-group" 
-            onPress={() => {}} 
+            selected={showPatientPicker}
+            onPress={() => {
+              setShowPatientPicker(!showPatientPicker)
+              if (showPatientPicker) {
+                setPatientId(null)
+              }
+            }} 
             style={[styles.chip, { backgroundColor: theme.colors.secondary }]}
           >
             By Patient
@@ -174,9 +247,9 @@ const displayedAppointments = React.useMemo(() => {
         </View>
       </View>
 
-        {/* conditional picker rendering */}
+        {/* conditional picker rendering archive stays */}
         {showArchivePicker && (
-          <View style={{ paddingHorizontal: 20, paddingBottom: 10 }}>
+          <View style={styles.picker}>
             <PickerField
               label="Archival Stay"
               value={archiveStayId}
@@ -185,6 +258,36 @@ const displayedAppointments = React.useMemo(() => {
               getLabel={x => x.name || `Stay #${x.id}`}
               onChange={val => setArchiveStayId(val as number | null)}
               placeholder="Select past stay" 
+            />
+          </View>
+        )}
+
+        {/* conditional picker rendering therapists */}
+        {showTherapistPicker && (
+          <View style={styles.picker}>
+            <PickerField
+              label="Therapists"
+              value={therapistId}              
+              items={pickerTherapists}               
+              getValue={x => x.id}               
+              getLabel={x => x.fullName}               
+              onChange={val => setTherapistId(val as number | null)}
+              placeholder="Select therapist" 
+            />
+          </View>
+        )}
+
+        {/* conditional picker rendering patients */}
+        {showPatientPicker && (
+          <View style={styles.picker}>
+            <PickerField
+              label="Patients"
+              value={patientId}
+              items={pickerPatients}
+              getValue={x => x.id} 
+              getLabel={x => x.fullName}               
+              onChange={val => setPatientId(val as number | null)}
+              placeholder="Select patient" 
             />
           </View>
         )}
@@ -227,6 +330,8 @@ const styles = StyleSheet.create({
   },
   
   listContent: { paddingHorizontal: 20, paddingBottom: 100, paddingTop: 10 },
+
+  picker: {paddingHorizontal: 20, paddingBottom: 10}
 })
 
 export default AppointmentsScreen

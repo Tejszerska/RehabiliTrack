@@ -15,25 +15,36 @@ namespace RehabiliTrack_API.Features.Appointments.Queries.GetAllAppointments
 
         public async Task<List<AppointmentListItemDto>> Handle(GetAllAppointmentsQuery request, CancellationToken cancellationToken)
         {
+            var query = _context.Appointments.AsQueryable();
 
-            var query =  _context.Appointments.AsQueryable();
-
-            if(request.StayIds != null && request.StayIds.Any())
+            if (request.StayIds != null && request.StayIds.Any())
             {
+                var stays = await _context.Stays
+                    .Where(s => request.StayIds.Contains(s.Id))
+                    .ToListAsync(cancellationToken);
 
-                foreach(var stayId in request.StayIds)
+                if (!stays.Any())
                 {
-                    query = query.Where(a => a.StayParticipation.StayId == stayId);
+                    return new List<AppointmentListItemDto>();
                 }
-            }
 
+                // min and max dates of current stays
+                var minDate = stays.Min(s => s.StartDate);
+                var maxDate = stays.Max(s => s.EndDate);
+
+                // 3 filtering:
+                query = query.Where(a =>
+                    // stay appointments
+                    (a.StayParticipationId != null && request.StayIds.Contains(a.StayParticipation.StayId))
+                    ||
+                    // outpatients appointment but date matches the stay
+                    (a.StayParticipationId == null && a.StartDateTime >= minDate && a.StartDateTime <= maxDate)
+                );
+            }
             query = query.OrderBy(a => a.StartDateTime);
 
+            
             var appointments = await query
-                .Include(a => a.Patient)
-                .Include(a => a.Treatment)
-                .Include(a => a.Therapist)
-                .Include(a => a.Room)
                 .Select(a => new AppointmentListItemDto
                 {
                     Id = a.Id,
