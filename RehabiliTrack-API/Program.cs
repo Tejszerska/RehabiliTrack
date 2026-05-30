@@ -37,8 +37,6 @@ namespace RehabiliTrack_API
             // === JWT Authentication setup ===
             // ==================================
 
-            
-
             // get JWT settings from configuration
             var jwtSettings = builder.Configuration.GetSection("JwtSettings");
             var secretKey = jwtSettings["SecurityKey"];

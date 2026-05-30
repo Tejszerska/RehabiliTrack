@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using RehabiliTrack_API.Features.Auth.Command.Login;
+using RehabiliTrack_API.Features.Auth.Command.Register;
 using RehabiliTrack_API.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -22,6 +23,9 @@ namespace RehabiliTrack_API.Controllers
             _mediator = mediator;
         }
 
+        /// <summary>
+        /// Login 
+        /// </summary>
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginCommand command)
@@ -29,6 +33,19 @@ namespace RehabiliTrack_API.Controllers
             var token = await _mediator.Send(command);
 
             return Ok(new { Token = token }); // for easy access in React
+        }
+
+        /// <summary>
+        /// Register new user
+        /// </summary>
+        [HttpPost("register")]
+        [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Register([FromBody] RegisterCommand command)
+        {
+            var newUserId = await _mediator.Send(command);
+
+            return Ok(newUserId);
         }
 
         [HttpPost("change-password")]
