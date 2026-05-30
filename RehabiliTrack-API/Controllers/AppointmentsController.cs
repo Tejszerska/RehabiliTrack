@@ -6,9 +6,6 @@ using RehabiliTrack_API.Features.Appointments.Commands.DeleteAppointment;
 using RehabiliTrack_API.Features.Appointments.Commands.UpdateAppointment;
 using RehabiliTrack_API.Features.Appointments.Queries.GetAllAppointments;
 using RehabiliTrack_API.Features.Appointments.Queries.GetAppointmentById;
-using RehabiliTrack_API.Features.Patients.Commands.CreatePatient;
-using RehabiliTrack_API.Features.Patients.Commands.DeletePatient;
-using RehabiliTrack_API.Features.Patients.Commands.UpdatePatient;
 
 namespace RehabiliTrack_API.Controllers
 {
