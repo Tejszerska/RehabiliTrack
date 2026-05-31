@@ -2,14 +2,15 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { View, FlatList, StyleSheet } from 'react-native'
 import { RootStackParamList } from '../../navigation/types'
 import { useTheme, Text, Chip } from 'react-native-paper'
-import { AppointmentListItem, Therapist } from '../../types/models'
+import { AppointmentListItem } from '../../types/models'
 import AddFAB from '../../components/AddFAB'
 import AppointmentCard from '../../components/AppointmentCard'
 import { useStays } from '../../context/StaysContext'
 import apiService from '../../api/apiService'
-import { useNavigation } from '@react-navigation/native'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { PickerField } from '../../components/PickerField'
+import { useAppointments } from '../../context/AppointmentsContext'
 
 
 const AppointmentsScreen = () => {
@@ -43,6 +44,17 @@ const AppointmentsScreen = () => {
   const [showPatientPicker, setShowPatientPicker] = useState(false)
   // store selected patient id
   const [patientId, setPatientId] = useState<number | null>(null)
+
+
+  // for lazy loading
+  const { refreshAppointments } = useAppointments();
+
+      useFocusEffect(
+          useCallback(() => {
+            refreshAppointments();
+            
+          }, [refreshAppointments]) 
+        );
 
 
   // navigate to details on card tap

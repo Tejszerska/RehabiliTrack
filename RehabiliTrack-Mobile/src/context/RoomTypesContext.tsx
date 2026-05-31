@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import apiService from '../api/apiService';
 import type {  CreateRoomTypeRequest, RoomType, UpdateRoomTypeRequest } from '../types/models';
 
@@ -24,7 +24,7 @@ export function RoomTypesProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   // Get all RoomTypes
-  const refreshRoomTypes = async () => {
+  const refreshRoomTypes = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -37,7 +37,7 @@ export function RoomTypesProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+}, []);
   
   // Create RoomType
   const createRoomType = async (data: CreateRoomTypeRequest) => {
@@ -83,11 +83,6 @@ export function RoomTypesProvider({ children }: { children: ReactNode }) {
       throw err;
     }
   };
-
-  // Załaduj produkty przy montowaniu
-  useEffect(() => {
-    refreshRoomTypes();
-  }, []);
 
   return (
     <RoomTypesContext.Provider

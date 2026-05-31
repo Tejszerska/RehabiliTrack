@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import apiService from '../api/apiService';
 import type {  CreateRehabRoomRequest, RehabRoom, UpdateRehabRoomRequest } from '../types/models';
 
@@ -24,7 +24,7 @@ export function RehabRoomsProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   // Get all RehabRooms
-  const refreshRehabRooms = async () => {
+const refreshRehabRooms = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -37,7 +37,7 @@ export function RehabRoomsProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
   
   // Create RehabRoom
   const createRehabRoom = async (data: CreateRehabRoomRequest) => {
@@ -84,10 +84,13 @@ export function RehabRoomsProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  /*
   // Załaduj produkty przy montowaniu
   useEffect(() => {
     refreshRehabRooms();
   }, []);
+  */
+
 
   return (
     <RehabRoomsContext.Provider

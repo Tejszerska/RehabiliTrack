@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import apiService from '../api/apiService';
 import type {  CreateTherapistRoleRequest, TherapistRole, UpdateTherapistRoleRequest } from '../types/models';
 
@@ -24,7 +24,7 @@ export function TherapistRolesProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   // Get all TherapistRoles
-  const refreshTherapistRoles = async () => {
+  const refreshTherapistRoles = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -37,7 +37,7 @@ export function TherapistRolesProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+}, []);
   
   // Create TherapistRole
   const createTherapistRole = async (data: CreateTherapistRoleRequest) => {
@@ -83,11 +83,6 @@ export function TherapistRolesProvider({ children }: { children: ReactNode }) {
       throw err;
     }
   };
-
-  // Załaduj produkty przy montowaniu
-  useEffect(() => {
-    refreshTherapistRoles();
-  }, []);
 
   return (
     <TherapistRolesContext.Provider

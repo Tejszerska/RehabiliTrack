@@ -1,12 +1,13 @@
 import React, { useCallback } from 'react';
 import { View, StyleSheet, FlatList, Alert } from 'react-native';
-import { Text, useTheme, FAB, ActivityIndicator } from 'react-native-paper';
+import { Text, useTheme, ActivityIndicator } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useTherapists } from '../../context/TherapistsContext';
 import TherapistCard from '../../components/TherapistCard';
 import CustomHeader from '../../components/CustomHeader';
 import AddFAB from '../../components/AddFAB';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TherapistsList'>;
 
@@ -35,6 +36,12 @@ const TherapistListScreen: React.FC<Props> = ({ navigation }) => {
       ]
     );
   }, [deleteTherapist]);
+
+    useFocusEffect(
+    useCallback(() => {
+      refreshTherapists();      
+    }, [refreshTherapists]) 
+  );
 
   const handleEditTherapist = useCallback((id: number) => {
     navigation.navigate('EditTherapist', { therapistId: id });

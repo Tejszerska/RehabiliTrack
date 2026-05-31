@@ -7,7 +7,7 @@ import { useStays } from '../../context/StaysContext';
 import { StayListItem } from '../../types/models';
 import AddFAB from '../../components/AddFAB';
 import StayCard from '../../components/StayCard';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'StayList'>;
 
@@ -15,6 +15,13 @@ const StayListScreen: React.FC<Props> = () => {
   const theme = useTheme();
   const { stays, loading, refreshStays } = useStays();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>(); 
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshStays();      
+    }, [refreshStays]) 
+  );
+
 
   const handlePress = useCallback((id: number) => {
     navigation.navigate('StayDetails', { stayId: id });

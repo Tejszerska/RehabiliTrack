@@ -7,12 +7,19 @@ import { useRehabRooms } from '../../context/RehabRoomsContext';
 import RehabRoomCard from '../../components/RehabRoomCard';
 import CustomHeader from '../../components/CustomHeader';
 import AddFAB from '../../components/AddFAB';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RehabRoomsList'>;
 
 const RoomsListScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useTheme();
   const { rehabRooms, loading, deleteRehabRoom, refreshRehabRooms } = useRehabRooms();
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshRehabRooms();
+    }, [refreshRehabRooms])
+  );
 
   const handleDeleteRoom = useCallback((id: number) => {
     Alert.alert(

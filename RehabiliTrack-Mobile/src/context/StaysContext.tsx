@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState,  ReactNode, useCallback } from 'react';
 import apiService from '../api/apiService';
 import type {  CreateStayRequest, StayListItem, UpdateStayRequest } from '../types/models';
 
@@ -14,6 +14,8 @@ interface StaysContextType {
   updateStay: (id: number, data: UpdateStayRequest) => Promise<void>;
   deleteStay: (id: number) => Promise<void>;
   fetchCurrentStays: () => Promise<void>;
+  initStays: () => Promise<void>;
+  
 }
 
 const StaysContext = createContext<StaysContextType | undefined>(undefined);
@@ -25,7 +27,7 @@ export function StaysProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   // Get all Stays
-  const refreshStays = async () => {
+  const refreshStays = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -38,7 +40,7 @@ export function StaysProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+}, []);
   
   // Create Stay
   const createStay = async (data: CreateStayRequest) => {
@@ -79,27 +81,24 @@ export function StaysProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const fetchCurrentStays = async () => {
+  // get current stays
+  const fetchCurrentStays= useCallback(async () => {
     try {
       const activeStays = await apiService.getCurrentStays();
       setCurrentStays(activeStays);
     } catch (err) {
       console.error("Failed to fetch current stays", err);
     }
-  };
+  }, []);
 
-  useEffect(() => {
-    const init = async () => {
-      setLoading(true);
-      await Promise.all([
-        refreshStays(),
-        fetchCurrentStays()
-      ]);
-      setLoading(false);
-    };
-    
-    init();
-  }, []); 
+  const initStays = useCallback(async () => {
+    setLoading(true);
+    await Promise.all([
+      refreshStays(),
+      fetchCurrentStays()
+    ]);
+    setLoading(false);
+  }, [refreshStays, fetchCurrentStays]);
 
   return (
     <StaysContext.Provider
@@ -113,6 +112,7 @@ export function StaysProvider({ children }: { children: ReactNode }) {
         updateStay,
         deleteStay,
         fetchCurrentStays,
+        initStays
       }}
     >
       {children}

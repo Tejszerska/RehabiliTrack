@@ -8,6 +8,7 @@ import CustomHeader from '../../components/CustomHeader';
 import DictionaryListItem from '../../components/DictionaryListItem';
 import AddFAB from '../../components/AddFAB';
 import DictionaryListHeader from '../../components/DictionaryListHeader';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TherapistRolesList'>;
 
@@ -29,6 +30,12 @@ const TherapistRolesListScreen: React.FC<Props> = ({ navigation }) => {
       ]
     );
   }, [deleteTherapistRole]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshTherapistRoles();      
+    }, [refreshTherapistRoles]) 
+  );
 
   const renderItem = useCallback(({ item }: any) => (
     <DictionaryListItem

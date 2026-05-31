@@ -8,6 +8,7 @@ import CustomHeader from '../../components/CustomHeader';
 import DictionaryListItem from '../../components/DictionaryListItem';
 import AddFAB from '../../components/AddFAB';
 import DictionaryListHeader from '../../components/DictionaryListHeader';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RoomTypesList'>;
 
@@ -29,6 +30,12 @@ const RoomTypesListScreen: React.FC<Props> = ({ navigation }) => {
       ]
     );
   }, [deleteRoomType]);
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshRoomTypes();
+    }, [refreshRoomTypes])
+  );
 
   const renderItem = useCallback(({ item }: any) => (
     <DictionaryListItem

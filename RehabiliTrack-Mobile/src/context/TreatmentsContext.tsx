@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState,  ReactNode, useCallback } from 'react';
 import apiService from '../api/apiService';
 import type {  CreateTreatmentRequest, Treatment, UpdateTreatmentRequest } from '../types/models';
 
@@ -24,7 +24,7 @@ export function TreatmentsProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   // Get all Treatments
-  const refreshTreatments = async () => {
+  const refreshTreatments = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -37,7 +37,7 @@ export function TreatmentsProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
   
   // Create Treatment
   const createTreatment = async (data: CreateTreatmentRequest) => {
@@ -84,10 +84,6 @@ export function TreatmentsProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Załaduj produkty przy montowaniu
-  useEffect(() => {
-    refreshTreatments();
-  }, []);
 
   return (
     <TreatmentsContext.Provider

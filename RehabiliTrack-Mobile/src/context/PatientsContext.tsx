@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import apiService from '../api/apiService';
 import type {CreatePatientRequest, UpdatePatientRequest, PatientListItem } from '../types/models';
 
@@ -24,7 +24,7 @@ export function PatientsProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   // Get all Patients
-  const refreshPatients = async () => {
+  const refreshPatients = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -37,7 +37,7 @@ export function PatientsProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+}, []);
   
   // Create Patient
   const createPatient = async (data: CreatePatientRequest) => {
@@ -83,11 +83,6 @@ export function PatientsProvider({ children }: { children: ReactNode }) {
       throw err;
     }
   };
-
-  // Załaduj produkty przy montowaniu
-  useEffect(() => {
-    refreshPatients();
-  }, []);
 
   return (
     <PatientsContext.Provider

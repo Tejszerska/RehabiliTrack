@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import apiService from '../api/apiService';
 import type {CreateAppointmentRequest, UpdateAppointmentRequest, AppointmentListItem } from '../types/models';
 
@@ -24,7 +24,7 @@ export function AppointmentsProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   // Get all Appointments
-  const refreshAppointments = async () => {
+  const refreshAppointments = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -37,7 +37,7 @@ export function AppointmentsProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+ }, []);
   
   // Create Appointment
   const createAppointment = async (data: CreateAppointmentRequest) => {
@@ -83,11 +83,6 @@ export function AppointmentsProvider({ children }: { children: ReactNode }) {
       throw err;
     }
   };
-
-  // Załaduj produkty przy montowaniu
-  useEffect(() => {
-    refreshAppointments();
-  }, []);
 
   return (
     <AppointmentsContext.Provider

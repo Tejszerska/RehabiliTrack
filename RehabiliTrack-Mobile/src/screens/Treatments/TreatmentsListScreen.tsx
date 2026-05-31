@@ -8,6 +8,7 @@ import CustomHeader from '../../components/CustomHeader';
 import DictionaryListItem from '../../components/DictionaryListItem';
 import AddFAB from '../../components/AddFAB';
 import DictionaryListHeader from '../../components/DictionaryListHeader';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'TreatmentsList'>;
 
@@ -29,6 +30,12 @@ const TreatmentsListScreen: React.FC<Props> = ({ navigation }) => {
       ]
     );
   }, [deleteTreatment]);
+
+    useFocusEffect(
+    useCallback(() => {
+      refreshTreatments();      
+    }, [refreshTreatments]) 
+  );
 
   const renderItem = useCallback(({ item }: any) => (
     <DictionaryListItem
