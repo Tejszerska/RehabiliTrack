@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using RehabiliTrack_API.Features.Auth.Command.ChangePassword;
 using RehabiliTrack_API.Features.Auth.Command.Login;
 using RehabiliTrack_API.Features.Auth.Command.Register;
 using RehabiliTrack_API.Models;
@@ -30,9 +31,17 @@ namespace RehabiliTrack_API.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginCommand command)
         {
-            var token = await _mediator.Send(command);
+            try
+            {
+                var token = await _mediator.Send(command);
 
-            return Ok(new { Token = token }); // for easy access in React
+                return Ok(new { Token = token }); // for easy access in React
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+
+            }
         }
 
         /// <summary>
@@ -43,16 +52,42 @@ namespace RehabiliTrack_API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterCommand command)
         {
-            var newUserId = await _mediator.Send(command);
+            try
+            {
+                var newUserId = await _mediator.Send(command);
 
-            return Ok(newUserId);
+                return Ok(newUserId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+
         }
 
         [HttpPost("change-password")]
-        public IActionResult ChangePassword()
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
         {
-            // TODO: logika zmiany hasła (sprawdzenie aktualnego hasła, walidacja nowego hasła, aktualizacja w bazie danych itp.)
-            return Ok();
+            // id set in the command based on the authenticated user
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (int.TryParse(userIdString, out int userId))
+            {
+                command.UserId = userId;
+            }
+            else
+            {
+                return Unauthorized(new { Error = "Wrong token." });
+            }
+
+            try
+            {
+                await _mediator.Send(command);
+                return Ok(new { Message = "Password changed successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
         }
     }
 }
