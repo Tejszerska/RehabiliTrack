@@ -1,24 +1,31 @@
 import { API_BASE_URL } from './config';
-import type { 
-  PatientDetails, CreatePatientRequest, UpdatePatientRequest, 
+import type {
+  PatientDetails, CreatePatientRequest, UpdatePatientRequest,
   Therapist, CreateTherapistRequest, UpdateTherapistRequest,
   RehabRoom, CreateRehabRoomRequest, UpdateRehabRoomRequest,
   RoomType, CreateRoomTypeRequest, UpdateRoomTypeRequest,
   TherapistRole, CreateTherapistRoleRequest, UpdateTherapistRoleRequest,
   Treatment, CreateTreatmentRequest, UpdateTreatmentRequest,
-  Stay, CreateStayRequest, UpdateStayRequest,
+  StayListItem, CreateStayRequest, UpdateStayRequest,
   CreateAppointmentRequest, UpdateAppointmentRequest,
   AppointmentListItem,
   AppointmentDetails,
   PatientListItem,
   StayDetails
 } from '../types/models';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 class ApiService {
   private baseUrl: string;
+  private token: string | null = null;
 
   constructor() {
     this.baseUrl = API_BASE_URL;
+  }
+
+  //  AUTH CONTEXT
+  public setAuthToken(token: string | null) {
+    this.token = token;
   }
 
   /**
@@ -30,6 +37,9 @@ class ApiService {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
+    // === get token ===
+    const secureToken = await EncryptedStorage.getItem("auth_token");
+
     const HeadersCtor = (globalThis as any).Headers;
     let headers: any;
     if (HeadersCtor) {
@@ -37,22 +47,28 @@ class ApiService {
       if (!headers.has('Content-Type')) {
         headers.set('Content-Type', 'application/json');
       }
+      // use token
+      if (secureToken) {
+        headers.set('Authorization', `Bearer ${secureToken}`);
+      }
     } else {
       headers = {
         'Content-Type': 'application/json',
         ...(options.headers as any),
       };
+      // use token
+      if (secureToken) {
+        headers['Authorization'] = `Bearer ${secureToken}`;
+      }
     }
 
     try {
-      console.log(`API Request: ${options.method || 'GET'} ${url}`);
-
       const response = await fetch(url, {
         ...options,
         headers,
       });
 
-      // Sprawdzenie statusu
+      // check status
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(
@@ -74,6 +90,14 @@ class ApiService {
     }
   }
 
+  // === AUTH ===
+  async login(username: string, password: string): Promise<{ token: string }> {
+    return this.request<{ token: string }>('/Auth/Login', {
+      method: 'POST',
+      body: JSON.stringify({ username, password }),
+    });
+  }
+
   // === PATIENTS ===
   async getPatients(): Promise<PatientListItem[]> {
     return this.request<PatientDetails[]>('/Patients');
@@ -93,7 +117,7 @@ class ApiService {
   async updatePatient(id: number, data: UpdatePatientRequest): Promise<void> {
     return this.request<void>(`/Patients/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ ...data, id: id }), 
+      body: JSON.stringify({ ...data, id: id }),
     });
   }
 
@@ -103,7 +127,7 @@ class ApiService {
     });
   }
 
-    async searchPatients(term: string): Promise<PatientListItem[]> {
+  async searchPatients(term: string): Promise<PatientListItem[]> {
     return this.request<PatientListItem[]>(`/Patients/search?term=${encodeURIComponent(term)}`);
   }
 
@@ -126,7 +150,7 @@ class ApiService {
   async updateTherapist(id: number, data: UpdateTherapistRequest): Promise<void> {
     return this.request<void>(`/Therapists/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ ...data, id: id }), 
+      body: JSON.stringify({ ...data, id: id }),
     });
   }
 
@@ -155,7 +179,7 @@ class ApiService {
   async updateRehabRoom(id: number, data: UpdateRehabRoomRequest): Promise<void> {
     return this.request<void>(`/RehabRooms/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ ...data, id: id }), 
+      body: JSON.stringify({ ...data, id: id }),
     });
   }
 
@@ -184,7 +208,7 @@ class ApiService {
   async updateRoomType(id: number, data: UpdateRoomTypeRequest): Promise<void> {
     return this.request<void>(`/RoomTypes/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ ...data, id: id }), 
+      body: JSON.stringify({ ...data, id: id }),
     });
   }
 
@@ -213,7 +237,7 @@ class ApiService {
   async updateTherapistRole(id: number, data: UpdateTherapistRoleRequest): Promise<void> {
     return this.request<void>(`/TherapistRoles/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ ...data, id: id }), 
+      body: JSON.stringify({ ...data, id: id }),
     });
   }
 
@@ -242,7 +266,7 @@ class ApiService {
   async updateTreatment(id: number, data: UpdateTreatmentRequest): Promise<void> {
     return this.request<void>(`/Treatments/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ ...data, id: id }), 
+      body: JSON.stringify({ ...data, id: id }),
     });
   }
 
@@ -253,11 +277,11 @@ class ApiService {
   }
 
   // === STAYS ===
-  async getStays(): Promise<Stay[]> {
-    return this.request<Stay[]>('/Stays');
+  async getStays(): Promise<StayListItem[]> {
+    return this.request<StayListItem[]>('/Stays');
   }
-  async getCurrentStays(): Promise<Stay[]> {
-    return this.request<Stay[]>('/Stays/Current');
+  async getCurrentStays(): Promise<StayListItem[]> {
+    return this.request<StayListItem[]>('/Stays/Current');
   }
 
   async getStay(id: number): Promise<StayDetails> {
@@ -274,7 +298,7 @@ class ApiService {
   async updateStay(id: number, data: UpdateStayRequest): Promise<void> {
     return this.request<void>(`/Stays/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ ...data, id: id }), 
+      body: JSON.stringify({ ...data, id: id }),
     });
   }
 
@@ -284,13 +308,13 @@ class ApiService {
     });
   }
 
-// === APPOINTMENTS ===
+  // === APPOINTMENTS ===
   async getAppointments(stayIds?: number[]): Promise<AppointmentListItem[]> {
-    if(!stayIds || stayIds.length === 0 ){
-      return this.request<AppointmentListItem[]>(`/Appointments/`); 
+    if (!stayIds || stayIds.length === 0) {
+      return this.request<AppointmentListItem[]>(`/Appointments/`);
     }
 
-    const queryString = stayIds.map(id => `stayIds=${id}`).join('&');  
+    const queryString = stayIds.map(id => `stayIds=${id}`).join('&');
     return this.request<AppointmentListItem[]>(`/Appointments?${queryString}`);
   }
 
@@ -308,7 +332,7 @@ class ApiService {
   async updateAppointment(id: number, data: UpdateAppointmentRequest): Promise<void> {
     return this.request<void>(`/Appointments/${id}`, {
       method: 'PUT',
-      body: JSON.stringify({ ...data, id: id }), 
+      body: JSON.stringify({ ...data, id: id }),
     });
   }
 
@@ -318,10 +342,10 @@ class ApiService {
     });
   }
 
-// StayParticipation (tabela łącząca relacji M:M PAtients - Stays)
-  
+  // StayParticipation (tabela łącząca relacji M:M PAtients - Stays)
+
   // assign Patient To Stay
-async addPatientToStay(stayId: number, patientId: number): Promise<{ id: number }> {
+  async addPatientToStay(stayId: number, patientId: number): Promise<{ id: number }> {
     return this.request<{ id: number }>('/StayParticipations', {
       method: 'POST',
       body: JSON.stringify({ patientId, stayId }),

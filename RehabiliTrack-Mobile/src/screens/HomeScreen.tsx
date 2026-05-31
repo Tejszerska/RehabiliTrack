@@ -4,12 +4,15 @@ import { Text, Surface, useTheme, IconButton, Button } from 'react-native-paper'
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
+import { useAuth } from '../context/AuthContext';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const HomeScreen = () => {
   const theme = useTheme();
   const navigation = useNavigation<NavigationProp>();
+
+  const { logout } = useAuth();
 
   // mock for header
   const currentStay = {
@@ -45,6 +48,15 @@ const HomeScreen = () => {
 
         {/*  Manager */}
         <Text variant="titleMedium" style={styles.sectionTitle}>Manager</Text>
+
+        <Button 
+            style={styles.mainActionButton}
+            contentStyle={styles.buttonContent}
+            onPress={logout}
+
+          >
+           Logout
+          </Button>
         
         {/* ROW: Rehab Rooms */}
         <View style={styles.actionRow}>

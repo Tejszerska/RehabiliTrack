@@ -41,7 +41,7 @@ namespace RehabiliTrack_API.Infrastructure.Security
                 issuer: jwtSettings["Issuer"],
                 audience: jwtSettings["Audience"],
                 claims: claims,
-                expires: DateTime.Now.AddHours(2), // 2h for development, TODO: shorter lifespan for production
+                expires: DateTime.Now.AddHours(8), // 8h = one shift of an employee
                 signingCredentials: signinCredentials
             );
                         

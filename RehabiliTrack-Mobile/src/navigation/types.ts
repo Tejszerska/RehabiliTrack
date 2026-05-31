@@ -2,6 +2,9 @@ export type RootStackParamList = {
   Main: undefined; // do nawigacji 
   Home: undefined;
 
+  // AUTH
+  Login: undefined;
+
   // PATIENTS
   PatientList: undefined;
   AddPatient: undefined;
@@ -11,14 +14,14 @@ export type RootStackParamList = {
   EditPatient: {
     patientId: number
   };
-  
+
   // THERAPISTS
-  TherapistsList: undefined; 
+  TherapistsList: undefined;
   AddTherapist: undefined;
   EditTherapist: { therapistId: number };
 
   // REHAB ROOMS
-  RehabRoomsList: undefined; 
+  RehabRoomsList: undefined;
   AddRehabRoom: undefined;
   EditRehabRoom: { roomId: number };
 
@@ -41,11 +44,11 @@ export type RootStackParamList = {
   StayList: undefined;
   AddStay: undefined;
   EditStay: { stayId: number };
-  StayDetails: { stayId: number }; 
-  AddPatientToStay: { stayId: number } ;
+  StayDetails: { stayId: number };
+  AddPatientToStay: { stayId: number };
 
   // APPOINTMENTS
-  Appointments: undefined; 
+  Appointments: undefined;
   AddAppointment: undefined;
   EditAppointment: { appointmentId: number };
   AppointmentDetails: { appointmentId: number };

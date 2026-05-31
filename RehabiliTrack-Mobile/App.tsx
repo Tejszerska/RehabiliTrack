@@ -9,6 +9,7 @@ import { RehabRoomsProvider } from './src/context/RehabRoomsContext';
 import { AppointmentsProvider } from './src/context/AppointmentsContext';
 import { StaysProvider } from './src/context/StaysContext';
 import { TreatmentsProvider } from './src/context/TreatmentsContext';
+import { AuthProvider } from './src/context/AuthContext';
 
 const theme = {
   ...DefaultTheme,
@@ -26,6 +27,7 @@ const theme = {
 
 const App = () => {
   return (
+    <AuthProvider>
     <PaperProvider theme={theme}>
       <PatientsProvider>
         <TherapistsProvider>
@@ -45,6 +47,7 @@ const App = () => {
         </TherapistsProvider>
       </PatientsProvider>
     </PaperProvider>
+    </AuthProvider>
   );
 };
 

@@ -27,7 +27,7 @@ namespace RehabiliTrack_API.Controllers
         /// <summary>
         /// Login 
         /// </summary>
-        [HttpPost("login")]
+        [HttpPost("Login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginCommand command)
         {
@@ -47,7 +47,7 @@ namespace RehabiliTrack_API.Controllers
         /// <summary>
         /// Register new user
         /// </summary>
-        [HttpPost("register")]
+        [HttpPost("Register")]
         [ProducesResponseType(typeof(int), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterCommand command)
@@ -65,7 +65,7 @@ namespace RehabiliTrack_API.Controllers
 
         }
 
-        [HttpPost("change-password")]
+        [HttpPost("Change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
         {
             // id set in the command based on the authenticated user
