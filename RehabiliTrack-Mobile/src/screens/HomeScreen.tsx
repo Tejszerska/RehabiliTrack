@@ -7,6 +7,7 @@ import { RootStackParamList } from '../navigation/types';
 import { useAuth } from '../context/AuthContext';
 import { useStays } from '../context/StaysContext';
 import apiService from '../api/apiService'; // <-- Dodany import serwisu
+import { red100 } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -14,7 +15,7 @@ const HomeScreen = () => {
   const theme = useTheme();
   const navigation = useNavigation<NavigationProp>();
 
-  const { logout, role } = useAuth();
+  const { logout, role, username } = useAuth();
   
   const { initStays, currentStays, loading: staysLoading } = useStays();
 
@@ -75,7 +76,7 @@ const HomeScreen = () => {
       
       <View style={styles.topBar}>
         <Text variant="titleMedium" style={styles.loggedInText}>
-          Logged in as Admin
+          Logged in as {username?.toUpperCase()}
         </Text>
         <Button 
           mode="text" 
@@ -130,25 +131,48 @@ const HomeScreen = () => {
             <Text variant="labelSmall">Today's therapies</Text>
           </Surface>
         </View>
-{role === 'Admin' && (
-  <>
+        <View style={styles.actionRow}>
+            <Button 
+              onPress={() => navigation.navigate('ChangePassword')} 
+              style={styles.secondaryActionButton}
+              contentStyle={styles.buttonContent}
+              icon="cog"
+
+            >
+              Change password
+            </Button>
+          </View>
+
+
+        {role === 'Receptionist' && (
+            <>
+          <View style={styles.actionRow}>
+            <Button 
+              onPress={() => navigation.navigate('TherapistsList')} 
+              style={styles.mainActionButton}
+              contentStyle={styles.buttonContent}
+            >
+              Therapists
+            </Button>
+          </View>          
+          </>
+        )}    
+
+
+        {role === 'Admin' && (
+          <>
         <Text variant="titleMedium" style={styles.sectionTitle}>Manager</Text>
-        
-        {/* ROW: Rehab Rooms */}
+
+        {/* ROW: New User */}
         <View style={styles.actionRow}>
           <Button 
+            onPress={() => navigation.navigate('RegisterUser')} 
             style={styles.mainActionButton}
             contentStyle={styles.buttonContent}
-            onPress={() => navigation.navigate('RehabRoomsList')}
+            icon="account-plus"
           >
-           Rehab Rooms
+            Add New System User
           </Button>
-          <IconButton 
-            icon="plus" 
-            containerColor={theme.colors.secondary}
-            iconColor="white"
-            onPress={() => navigation.navigate('AddRehabRoom')}
-          />
         </View>
 
         {/* ROW: Therapists */}
@@ -167,6 +191,24 @@ const HomeScreen = () => {
             onPress={() => navigation.navigate('AddTherapist')}
           />
         </View>
+        
+        {/* ROW: Rehab Rooms */}
+        <View style={styles.actionRow}>
+          <Button 
+            style={styles.mainActionButton}
+            contentStyle={styles.buttonContent}
+            onPress={() => navigation.navigate('RehabRoomsList')}
+          >
+           Rehab Rooms
+          </Button>
+          <IconButton 
+            icon="plus" 
+            containerColor={theme.colors.secondary}
+            iconColor="white"
+            onPress={() => navigation.navigate('AddRehabRoom')}
+          />
+        </View>
+
 
         {/* ROW: Treatments */}
         <View style={styles.actionRow}>
@@ -289,6 +331,11 @@ const styles = StyleSheet.create({
     marginRight: 10,
     borderRadius: 12,
     backgroundColor: 'rgba(239, 241, 234, 1)',
+  },
+  secondaryActionButton: {
+    flex: 1,
+    marginRight: 10,
+    borderRadius: 12,    backgroundColor: 'rgb(254, 245, 199)',
   },
   buttonContent: {
     height: 48,

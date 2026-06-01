@@ -11,7 +11,9 @@ import type {
   AppointmentListItem,
   AppointmentDetails,
   PatientListItem,
-  StayDetails
+  StayDetails,
+  RegisterRequest,
+  ChangePasswordRequest
 } from '../types/models';
 import EncryptedStorage from 'react-native-encrypted-storage';
 
@@ -95,6 +97,20 @@ class ApiService {
     return this.request<{ token: string }>('/Auth/Login', {
       method: 'POST',
       body: JSON.stringify({ username, password }),
+    });
+  }
+
+  public async registerUser(data: RegisterRequest): Promise<number> {
+    return this.request<number>('/Auth/Register', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  public async changePassword(data: ChangePasswordRequest): Promise<{ message: string }> {
+    return this.request<{ message: string }>('/Auth/Change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
     });
   }
 

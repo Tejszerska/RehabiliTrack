@@ -4,6 +4,8 @@ export type RootStackParamList = {
 
   // AUTH
   Login: undefined;
+  RegisterUser: undefined;
+  ChangePassword: undefined;
 
   // PATIENTS
   PatientList: undefined;

@@ -1,11 +1,11 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import EncryptedStorage from 'react-native-encrypted-storage';
-import apiClient from '../api/apiService';
 import { jwtDecode } from 'jwt-decode';
 
 interface AuthData {
   token: string | null;
   role: string | null;
+  username: string | null; // <--- 1. Nowe pole w interfejsie
   isLoading: boolean;
 }
 
@@ -20,52 +20,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [authState, setAuthState] = useState<AuthData>({
     token: null,
     role: null,
+    username: null, 
     isLoading: true,
   });
 
-  // function to decode role 
-  const extractRoleFromToken = (token: string): string | null => {
+  // decoding function
+  const extractUserDataFromToken = (token: string) => {
     try {
       const decoded: any = jwtDecode(token);
-      return  decoded.role || null;
+      return {
+        role: decoded.role || null,
+        username: decoded.unique_name || null 
+      };
     } catch (error) {
-      return null;
+      return { role: null, username: null };
     }
   };
 
-  // get data at the start of app function
-  const getAuthState = async () => {
-    try {
-      const token = await EncryptedStorage.getItem("auth_token");
-      
-      if (token) {
-        const role = extractRoleFromToken(token);
-        // send token to apiService
-        apiClient.setAuthToken(token);
-        setAuthState({ token, role, isLoading: false });
-      } else {
-        setAuthState({ token: null, role: null, isLoading: false });
-      }
-    } catch (err) {
-      setAuthState({ token: null, role: null, isLoading: false });
-    }
-  };
-
- // save token when login successful
+  // save token when login successful
   const setAuth = async (token: string) => {
     try {
       await EncryptedStorage.setItem("auth_token", token);
-      const role = extractRoleFromToken(token);
-      setAuthState({ token, role, isLoading: false });
+      const { role, username } = extractUserDataFromToken(token); 
+      setAuthState({ token, role, username, isLoading: false });
     } catch (error) {
       return Promise.reject(error);
     }
   };
 
-  // logout funtion
+  // logout function
   const logout = async () => {
     await EncryptedStorage.removeItem("auth_token");
-    setAuthState({ token: null, role: null, isLoading: false });
+    setAuthState({ token: null, role: null, username: null, isLoading: false });
   };
 
   // load data at the first render
@@ -75,13 +61,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const token = await EncryptedStorage.getItem("auth_token");
         
         if (token) {
-          const role = extractRoleFromToken(token);
-          setAuthState({ token, role, isLoading: false });
+          const { role, username } = extractUserDataFromToken(token);
+          setAuthState({ token, role, username, isLoading: false });
         } else {
-          setAuthState({ token: null, role: null, isLoading: false });
+          setAuthState({ token: null, role: null, username: null, isLoading: false });
         }
       } catch (err) {
-        setAuthState({ token: null, role: null, isLoading: false });
+        setAuthState({ token: null, role: null, username: null, isLoading: false });
       }
     };
 

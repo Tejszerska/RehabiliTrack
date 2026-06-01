@@ -58,7 +58,7 @@ export interface Therapist extends BaseEntity {
 export interface CreateTherapistRequest {
   firstName: string;
   lastName: string;
-  licenseNumber: string; 
+  licenseNumber: string;
   phoneNumber?: string;
   notes?: string;
   therapistRoleId: number;
@@ -197,8 +197,8 @@ export interface AppointmentListTreatment {
   name: string;
 }
 export interface AppointmentListTherapist {
-id: number;
-fullName: string;
+  id: number;
+  fullName: string;
 }
 export interface AppointmentListRoom {
   id: number;
@@ -231,14 +231,14 @@ export interface AppointmentDetailsTreatment {
 
 }
 export interface AppointmentDetailsTherapist {
-id: number;
-fullName: string;
-roleName: string;
+  id: number;
+  fullName: string;
+  roleName: string;
 }
 export interface AppointmentDetailsStay {
-id: number;
-participationId: number;
-name: string;
+  id: number;
+  participationId: number;
+  name: string;
 }
 
 export interface AppointmentDetailsRoom {
@@ -250,15 +250,15 @@ export interface AppointmentDetailsRoom {
 
 export interface AppointmentDetails {
   id: number;
- 
+
   patient: AppointmentDetailsPatient;
   treatment: AppointmentDetailsTreatment;
   therapist: AppointmentDetailsTherapist;
   room: AppointmentDetailsRoom;
   stay?: AppointmentDetailsStay;
-  
+
   startDateTime: string;
-  status: string;  
+  status: string;
 }
 
 export interface CreateAppointmentRequest {
@@ -268,7 +268,7 @@ export interface CreateAppointmentRequest {
   roomId: number;
   startDateTime: string;
   status: AppointmentStatus;
-  stayId?: number; 
+  stayId?: number;
 }
 
 export interface UpdateAppointmentRequest {
@@ -279,4 +279,16 @@ export interface UpdateAppointmentRequest {
   roomId: number;
   startDateTime: string;
   stayParticipationId?: number;
+}
+
+// AUTH
+export interface RegisterRequest {
+  username: string;
+  password: string;
+  role: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }

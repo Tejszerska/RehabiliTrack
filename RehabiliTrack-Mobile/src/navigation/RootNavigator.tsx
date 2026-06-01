@@ -8,6 +8,7 @@ import MainContainer from '../screens/MainContainer';
 // AUTH
 import { useAuth } from '../context/AuthContext';
 import LoginScreen from '../screens/Auth/LoginScreen';
+import RegisterUserScreen from '../screens/Auth/RegisterUserScreen'; // <-- NOWY IMPORT
 
 // PATIENTS
 import AddPatientScreen from '../screens/Patients/AddPatientScreen';
@@ -49,11 +50,12 @@ import AddAppointmentScreen from '../screens/Appointments/AddAppointmentScreen';
 import EditAppointmentScreen from '../screens/Appointments/EditAppointmentScreen';
 import AppointmentDetailsScreen from '../screens/Appointments/AppointmentDetailsScreen';
 import AddPatientToStayScreen from '../screens/Stays/AddPatientToStayScreen';
+import ChangePasswordScreen from '../screens/Auth/ChangePasswordScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function RootNavigator(): React.JSX.Element | null {
-  const { token, isLoading } = useAuth();
+  const { token, isLoading, role } = useAuth();
 
   if (isLoading) {
     return null;
@@ -66,7 +68,9 @@ function RootNavigator(): React.JSX.Element | null {
         {token ? (
           // === SCREENS FOR AUTHORIZED USERS ===
           <>
+            {/* === OTHER === */}
             <Stack.Screen name="Main" component={MainContainer} />
+            <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} options={{ title: 'Settings' }} />
 
             {/*========== PATIENTS ========== */}
             <Stack.Screen name="PatientDetails" component={PatientDetailsScreen} />
@@ -78,26 +82,6 @@ function RootNavigator(): React.JSX.Element | null {
             <Stack.Screen name="AddTherapist" component={AddTherapistScreen} />
             <Stack.Screen name="EditTherapist" component={EditTherapistScreen} />
 
-            {/*========== REHAB ROOMS ========== */}
-            <Stack.Screen name="RehabRoomsList" component={RehabRoomsListScreen} />
-            <Stack.Screen name="AddRehabRoom" component={AddRehabRoomScreen} />
-            <Stack.Screen name="EditRehabRoom" component={EditRehabRoomScreen} />
-
-            {/*========== ROOM TYPES ========== */}
-            <Stack.Screen name="RoomTypesList" component={RoomTypesListScreen} />
-            <Stack.Screen name="AddRoomType" component={AddRoomTypeScreen} />
-            <Stack.Screen name="EditRoomType" component={EditRoomTypeScreen} />
-
-            {/*========== THERAPIST ROLES ========== */}
-            <Stack.Screen name="TherapistRolesList" component={TherapistRolesListScreen} />
-            <Stack.Screen name="AddTherapistRole" component={AddTherapistRolesScreen} />
-            <Stack.Screen name="EditTherapistRole" component={EditTherapistRolesScreen} />
-
-            {/*========== TREATMENTS ========== */}
-            <Stack.Screen name="TreatmentsList" component={TreatmentsListScreen} />
-            <Stack.Screen name="AddTreatment" component={AddTreatmentScreen} />
-            <Stack.Screen name="EditTreatment" component={EditTreatmentScreen} />
-
             {/*========== STAYS ========== */}
             <Stack.Screen name="AddStay" component={AddStayScreen} />
             <Stack.Screen name="EditStay" component={EditStayScreen} />
@@ -108,6 +92,34 @@ function RootNavigator(): React.JSX.Element | null {
             <Stack.Screen name="AddAppointment" component={AddAppointmentScreen} />
             <Stack.Screen name="EditAppointment" component={EditAppointmentScreen} />
             <Stack.Screen name="AppointmentDetails" component={AppointmentDetailsScreen} />
+
+
+            {/* JUST FOR ADMIN */}
+            {role === 'Admin' && (
+              <>
+                <Stack.Screen name="RegisterUser" component={RegisterUserScreen} />
+
+                {/*========== REHAB ROOMS ========== */}
+                <Stack.Screen name="RehabRoomsList" component={RehabRoomsListScreen} />
+                <Stack.Screen name="AddRehabRoom" component={AddRehabRoomScreen} />
+                <Stack.Screen name="EditRehabRoom" component={EditRehabRoomScreen} />
+
+                {/*========== ROOM TYPES ========== */}
+                <Stack.Screen name="RoomTypesList" component={RoomTypesListScreen} />
+                <Stack.Screen name="AddRoomType" component={AddRoomTypeScreen} />
+                <Stack.Screen name="EditRoomType" component={EditRoomTypeScreen} />
+
+                {/*========== THERAPIST ROLES ========== */}
+                <Stack.Screen name="TherapistRolesList" component={TherapistRolesListScreen} />
+                <Stack.Screen name="AddTherapistRole" component={AddTherapistRolesScreen} />
+                <Stack.Screen name="EditTherapistRole" component={EditTherapistRolesScreen} />
+
+                {/*========== TREATMENTS ========== */}
+                <Stack.Screen name="TreatmentsList" component={TreatmentsListScreen} />
+                <Stack.Screen name="AddTreatment" component={AddTreatmentScreen} />
+                <Stack.Screen name="EditTreatment" component={EditTreatmentScreen} />
+              </>
+            )}
           </>
         ) : (
           // === SCREENS FOR UNAUTHORIZED USERS ===
