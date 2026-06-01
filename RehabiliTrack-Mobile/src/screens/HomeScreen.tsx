@@ -13,7 +13,8 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 const HomeScreen = () => {
   const theme = useTheme();
   const navigation = useNavigation<NavigationProp>();
-  const { logout } = useAuth();
+
+  const { logout, role } = useAuth();
   
   const { initStays, currentStays, loading: staysLoading } = useStays();
 
@@ -129,7 +130,8 @@ const HomeScreen = () => {
             <Text variant="labelSmall">Today's therapies</Text>
           </Surface>
         </View>
-
+{role === 'Admin' && (
+  <>
         <Text variant="titleMedium" style={styles.sectionTitle}>Manager</Text>
         
         {/* ROW: Rehab Rooms */}
@@ -216,7 +218,8 @@ const HomeScreen = () => {
             onPress={() => navigation.navigate('AddTherapistRole')} 
           />
         </View>
-        
+       </>
+)} 
       </View>
     </ScrollView>
   );

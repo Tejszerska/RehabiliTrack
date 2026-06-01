@@ -25,11 +25,8 @@ namespace RehabiliTrack_API.Features.Auth.Command.Login
             {
                 throw new Exception("Incorrect username or password");
             }
-
-            // get roles for the user (if any)
-            var roles = await _userManager.GetRolesAsync(user);
-           
-            var token = _tokenService.GenerateToken(user, roles);
+                       
+            var token = await _tokenService.GenerateTokenAsync(user);
 
             return token;
         }
